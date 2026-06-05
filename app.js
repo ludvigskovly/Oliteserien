@@ -32,7 +32,7 @@ const PLAYER_META = {
   "Espen": {
     fullName: "Espen",
     nickname: "Espen",
-    preferredBeer: "Hansa Pilsner",
+    preferredBeer: "Isbjørn Lite",
     image: "./espen.jpg",
     role: "Maskinrating-profil",
   },
