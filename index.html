@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Øliteserien</title>
+    <link rel="icon" href="./crest.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img src="./crest.svg" alt="" />
+          <div>
+            <h1>Øliteserien</h1>
+            <p>Sommeren 2026</p>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Dashboard">
+          <a href="#overview">Oversikt</a>
+          <a href="#players">Spillere</a>
+          <a href="#chart">Graf</a>
+          <a href="#table">Tabell</a>
+          <a href="#totw">TOTW</a>
+          <a href="#stats">Stats</a>
+          <a href="#duos">Duos</a>
+        </nav>
+
+        <div class="source-panel">
+          <span class="label">Datakilde</span>
+          <strong id="source">Laster...</strong>
+          <small id="updated">-</small>
+        </div>
+      </aside>
+
+      <main>
+        <section class="topbar">
+          <div>
+            <h2>Dashboard</h2>
+            <p id="range">Leser regnearket...</p>
+          </div>
+          <button id="refresh" type="button">Oppdater</button>
+        </section>
+
+        <section class="metrics" id="metrics"></section>
+
+        <section class="market-grid" id="overview">
+          <div class="panel hero-panel">
+            <div class="panel-head">
+              <h3>Sesongoversikt</h3>
+              <span>Status akkurat nå</span>
+            </div>
+            <div id="market-watch" class="market-watch"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Lederbildet</h3>
+              <span>Tabelltoppen</span>
+            </div>
+            <div id="power-index" class="stat-stack"></div>
+          </div>
+        </section>
+
+        <section class="panel players-panel" id="players">
+          <div class="panel-head">
+            <h3>Player View</h3>
+            <span>Swipe fra topp til bunn</span>
+          </div>
+          <div id="player-view" class="player-carousel"></div>
+        </section>
+
+        <section class="panel chart-panel" id="chart">
+          <div class="panel-head">
+            <h3>Kumulativ Pils</h3>
+            <span>Alle spillere over tid</span>
+          </div>
+          <div id="cumulative-chart" class="chart-area"></div>
+        </section>
+
+        <section class="grid two">
+          <div class="panel" id="table">
+            <div class="panel-head">
+              <h3>Ligatabell</h3>
+              <span>PR som tiebreaker</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Navn</th>
+                    <th>Pils</th>
+                    <th>PR</th>
+                  </tr>
+                </thead>
+                <tbody id="league-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel" id="totw">
+            <div class="panel-head">
+              <h3>Team of the Week</h3>
+              <span>Uketotal + ukens PR</span>
+            </div>
+            <div id="totw-list" class="week-list"></div>
+          </div>
+        </section>
+
+        <section class="grid three" id="stats">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>The Alcoholic</h3>
+              <span>Drikkedager</span>
+            </div>
+            <p class="stat-description">Rangerer etter hvor mange dager personen har registrert minst én pils til og med i dag.</p>
+            <div id="drinking-days" class="rank-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Sleep Merchant</h3>
+              <span>Sovedager</span>
+            </div>
+            <p class="stat-description">Motsatsen til The Alcoholic: dager uten registrert pils til og med i dag.</p>
+            <div id="sleep-days" class="rank-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>xP</h3>
+              <span>Forventet pils</span>
+            </div>
+            <p class="stat-description">Anslår forventet pils basert på personens egen ukedagshistorikk og form.</p>
+            <div id="xp-list" class="rank-list"></div>
+          </div>
+        </section>
+
+        <section class="grid three">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>PR-børsen</h3>
+              <span>Beste enkeltdag</span>
+            </div>
+            <p class="stat-description">Personlig rekord: høyeste antall pils registrert på én dag.</p>
+            <div id="pr-list" class="rank-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>League Carry</h3>
+              <span>Andel av totalen</span>
+            </div>
+            <p class="stat-description">Hvor stor andel av ligaens totale pils hver person står for.</p>
+            <div id="carry-list" class="rank-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Hot Streaks</h3>
+              <span>Dager på rad</span>
+            </div>
+            <p class="stat-description">Lengste rekke med drikkedager, med nåværende streak vist etter skråstreken.</p>
+            <div id="streak-list" class="rank-list"></div>
+          </div>
+        </section>
+
+        <section class="grid two">
+          <div class="panel" id="duos">
+            <div class="panel-head">
+              <h3>Dynamic Duos</h3>
+              <span>Tiebreaker: samlet pils</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Broder 1</th>
+                    <th>Broder 2</th>
+                    <th>Dager</th>
+                  </tr>
+                </thead>
+                <tbody id="duo-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>League Stats</h3>
+              <span>Aktivitet</span>
+            </div>
+            <div id="league-stats" class="stat-stack"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=18"></script>
+  </body>
+</html>
