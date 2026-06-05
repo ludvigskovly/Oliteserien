@@ -36,6 +36,13 @@ const PLAYER_META = {
     image: "./espen.jpg",
     role: "Maskinrating-profil",
   },
+  "Elling": {
+    fullName: "Elling",
+    nickname: "Elling",
+    preferredBeer: "Hansa Pilsner",
+    image: "./elling.jpg",
+    role: "Øliteserien spiller",
+  },
   "Ludde": {
     fullName: "Ludde",
     nickname: "Ludde",
