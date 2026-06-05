@@ -628,40 +628,6 @@ function renderMarket(model) {
         .map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.pr)]),
     },
   ].map(renderMiniTable).join("");
-
-  const ratingPlayers = model.totals
-    .slice()
-    .sort((a, b) => (b.machineRating ?? 0) - (a.machineRating ?? 0) || b.total - a.total || a.name.localeCompare(b.name, "no"));
-
-  $("#power-index").innerHTML = ratingPlayers.map((player, index) => {
-    const meta = PLAYER_META[player.name] || {};
-    const displayName = meta.fullName || player.name;
-    const initials = player.name.slice(0, 2).toUpperCase();
-    const image = meta.image
-      ? `<img class="rating-photo" src="${meta.image}" alt="${displayName}" />`
-      : `<div class="rating-initials">${initials}</div>`;
-
-    return `
-      <article class="rating-card">
-        <div class="rating-media">
-          ${image}
-          <span class="rating-rank">#${index + 1}</span>
-        </div>
-        <div class="rating-body">
-          <span class="rating-kicker">Maskinrating</span>
-          <h4>${displayName}</h4>
-          <p>${meta.preferredBeer || "Ølpreferanse ikke registrert"}</p>
-          <strong>${player.machineRating ?? "-"}</strong>
-          <div class="rating-stats">
-            <span>Total <b>${formatNumber(player.total)}</b></span>
-            <span>PR <b>${formatNumber(player.pr)}</b></span>
-            <span>TOTW <b>${player.totw}</b></span>
-            <span>Snitt <b>${formatNumber(player.average)}</b></span>
-          </div>
-        </div>
-      </article>
-    `;
-  }).join("");
 }
 
 function renderMiniTable(table) {
