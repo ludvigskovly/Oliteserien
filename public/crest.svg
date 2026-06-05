@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Øliteserien crest">
+  <rect width="160" height="160" rx="28" fill="#102018"/>
+  <path d="M48 42h52v70c0 17-12 28-26 28s-26-11-26-28V42Z" fill="#f2b84b"/>
+  <path d="M58 52h32v57c0 11-7 18-16 18s-16-7-16-18V52Z" fill="#ffd978"/>
+  <path d="M100 58h14c12 0 20 9 20 22s-8 22-20 22h-14V88h13c5 0 8-3 8-8s-3-8-8-8h-13V58Z" fill="#f2b84b"/>
+  <path d="M44 36c4-12 16-18 27-11 7-9 23-8 28 3 11-2 21 5 21 17 0 10-8 17-18 17H52c-12 0-19-11-8-26Z" fill="#fff3d4"/>
+  <path d="M45 115h58v12H45z" fill="#7c4a16"/>
+</svg>

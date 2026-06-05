@@ -1,0 +1,12 @@
+{
+  "name": "oliteserien-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "start:live": "LIVE=1 node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

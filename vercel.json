@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/sheet",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=30, stale-while-revalidate=120" }
+      ]
+    }
+  ]
+}
