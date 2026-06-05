@@ -443,8 +443,8 @@ function addDays(date, days) {
   return next;
 }
 
-function renderMetric(label, value) {
-  return `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`;
+function renderMetric(label, value, className = "") {
+  return `<div class="metric ${className}"><span>${label}</span><strong>${value}</strong></div>`;
 }
 
 function renderRank(items, target, valueKey, formatter = (value) => value) {
@@ -463,12 +463,7 @@ function render(model) {
   $("#updated").textContent = `Oppdatert ${new Date().toLocaleTimeString("no-NO", { hour: "2-digit", minute: "2-digit" })}`;
   $("#range").textContent = `${DATE_FORMAT.format(model.days[0].date)} - ${DATE_FORMAT.format(model.days.at(-1).date)}`;
 
-  $("#metrics").innerHTML = [
-    renderMetric("Totalt pils", formatNumber(model.totalBeer)),
-    renderMetric("Leder", model.league[0]?.name || "-"),
-    renderMetric("Siste pilsdag", model.latest ? DATE_FORMAT.format(model.latest.date) : "-"),
-    renderMetric("Aktive dager", model.activeDays.filter((day) => sum(day.values) > 0).length),
-  ].join("");
+  $("#metrics").innerHTML = renderMetric("TOTAL BEER COUNT (ØLITESERIEN)", formatNumber(model.totalBeer), "league-total");
 
   renderMarket(model);
   renderPlayers(model);
@@ -577,16 +572,15 @@ function renderMarket(model) {
   $("#market-watch").innerHTML = [
     {
       title: "LIGATABELL",
-      headers: ["#", "Navn", "Poeng"],
-      rows: model.league.slice(0, 8).map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.total)]),
+      headers: ["#", "Navn", "Pils"],
+      rows: model.league.map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.total)]),
     },
     {
-      title: "PR",
-      headers: ["#", "Navn", "Poeng"],
+      title: "PR (Personlig Rekord)",
+      headers: ["#", "Navn", "Pils"],
       rows: model.totals
         .slice()
         .sort((a, b) => b.pr - a.pr || b.total - a.total || a.name.localeCompare(b.name, "no"))
-        .slice(0, 8)
         .map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.pr)]),
     },
   ].map(renderMiniTable).join("");
@@ -601,7 +595,7 @@ function renderMarket(model) {
 
 function renderMiniTable(table) {
   return `
-    <div class="sheet-card compact">
+    <div class="sheet-card compact sheet-table-card">
       <h4>${escapeHtml(table.title)}</h4>
       <div class="table-wrap">
         <table>
@@ -609,7 +603,7 @@ function renderMiniTable(table) {
             <tr>${table.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
           </thead>
           <tbody>
-            ${table.rows.map((row) => `<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+            ${table.rows.map((row, index) => `<tr class="${index < 3 ? `podium podium-${index + 1}` : ""}">${row.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
           </tbody>
         </table>
       </div>

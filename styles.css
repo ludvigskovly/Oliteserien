@@ -1,16 +1,22 @@
 :root {
   color-scheme: dark;
-  --bg: #080b0f;
-  --bg-soft: #0d1319;
-  --panel: #111820;
-  --panel-2: #0f151c;
+  --bg: #07100c;
+  --bg-soft: #0b1711;
+  --panel: #101912;
+  --panel-2: #0d1510;
   --ink: #e8edf2;
   --muted: #8f9aa6;
   --faint: #53606d;
-  --line: #22303b;
-  --line-strong: #314250;
+  --line: #244033;
+  --line-strong: #37614d;
   --gold: #e7b75f;
+  --silver: #c9d0d6;
+  --bronze: #c58b59;
   --green: #43d19e;
+  --sheet-green: #0f6b43;
+  --sheet-white: #f8faf7;
+  --sheet-ink: #18211b;
+  --sheet-grid: #dfe7dc;
   --red: #ff6b6b;
   --blue: #5cc8ff;
   --shadow: 0 22px 70px rgba(0, 0, 0, 0.38);
@@ -27,9 +33,9 @@ html {
 body {
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(8, 11, 15, 0.92), rgba(8, 11, 15, 1)),
-    radial-gradient(circle at 20% -10%, rgba(67, 209, 158, 0.15), transparent 32rem),
-    radial-gradient(circle at 100% 0%, rgba(92, 200, 255, 0.12), transparent 30rem);
+    linear-gradient(180deg, rgba(7, 16, 12, 0.94), rgba(7, 16, 12, 1)),
+    radial-gradient(circle at 20% -10%, rgba(67, 209, 158, 0.16), transparent 32rem),
+    radial-gradient(circle at 100% 0%, rgba(231, 183, 95, 0.1), transparent 30rem);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow-x: hidden;
@@ -157,7 +163,7 @@ button:hover {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -171,21 +177,37 @@ button:hover {
 }
 
 .metric {
-  padding: 16px;
-  min-height: 92px;
+  padding: 18px 22px;
+  min-height: 112px;
   display: grid;
   align-content: space-between;
 }
 
 .metric strong {
   display: block;
-  font-size: 31px;
+  font-size: 46px;
   line-height: 1.05;
 }
 
 .metric span {
   color: var(--muted);
   font-weight: 740;
+}
+
+.metric.league-total {
+  background: linear-gradient(135deg, #0f6b43, #15935d);
+  border-color: rgba(184, 240, 205, 0.45);
+  color: white;
+}
+
+.metric.league-total span {
+  color: rgba(255, 255, 255, 0.76);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.metric.league-total strong {
+  font-size: clamp(54px, 9vw, 104px);
 }
 
 .market-grid {
@@ -197,8 +219,8 @@ button:hover {
 
 .market-watch {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   padding: 16px;
 }
 
@@ -298,11 +320,53 @@ button:hover {
 }
 
 .sheet-card.compact {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--sheet-white);
+  border-color: var(--sheet-grid);
+  color: var(--sheet-ink);
 }
 
 .sheet-card.compact h4 {
-  color: var(--gold);
+  color: var(--sheet-ink);
+  background: white;
+  border-bottom-color: var(--sheet-grid);
+  font-size: 18px;
+}
+
+.sheet-table-card table {
+  color: var(--sheet-ink);
+}
+
+.sheet-table-card .table-wrap {
+  max-height: none;
+}
+
+.sheet-table-card th,
+.sheet-table-card td {
+  border-bottom-color: var(--sheet-grid);
+}
+
+.sheet-table-card th {
+  color: #516158;
+  background: #eef4ec;
+}
+
+.sheet-table-card tbody tr:hover {
+  background: #f1f7ef;
+}
+
+.sheet-table-card .podium-1 td {
+  background: rgba(231, 183, 95, 0.34);
+  font-weight: 900;
+}
+
+.sheet-table-card .podium-2 td {
+  background: rgba(201, 208, 214, 0.42);
+  font-weight: 850;
+}
+
+.sheet-table-card .podium-3 td {
+  background: rgba(197, 139, 89, 0.32);
+  font-weight: 850;
 }
 
 .value-card {
