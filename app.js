@@ -493,6 +493,15 @@ function renderRank(items, target, valueKey, formatter = (value) => value) {
   `).join("");
 }
 
+function playerStat(label, value, description, className = "") {
+  return `
+    <div class="player-stat has-tooltip ${className}" title="${escapeHtml(description)}" data-tooltip="${escapeHtml(description)}">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
 function render(model) {
   $("#source").textContent = state.source;
   $("#updated").textContent = `Oppdatert ${new Date().toLocaleTimeString("no-NO", { hour: "2-digit", minute: "2-digit" })}`;
@@ -588,14 +597,14 @@ function renderPlayers(model) {
             <span style="width:${Math.max(4, (player.total / maxTotal) * 100)}%"></span>
           </div>
           <div class="player-stats">
-            <div class="machine-rating"><span>Maskinrating</span><strong>${player.machineRating ?? "-"}</strong></div>
-            <div><span>Total</span><strong>${formatNumber(player.total)}</strong></div>
-            <div><span>PR</span><strong>${formatNumber(player.pr)}</strong></div>
-            <div><span>Form</span><strong>${formLabel}</strong></div>
-            <div><span>TOTW</span><strong>${player.totw}</strong></div>
-            <div><span>Carry</span><strong>${pct(carry)}</strong></div>
-            <div><span>Drikkedager</span><strong>${player.drinkingDays}</strong></div>
-            <div><span>Snitt</span><strong>${formatNumber(player.average)}</strong></div>
+            ${playerStat("Maskinrating", player.machineRating ?? "-", "Sammensatt rating fra regnearket basert på total, snitt, PR, TOTW og form.", "machine-rating")}
+            ${playerStat("Total", formatNumber(player.total), "Totalt antall pils registrert for spilleren.")}
+            ${playerStat("PR", formatNumber(player.pr), "Personlig rekord: høyeste antall pils spilleren har registrert på én dag.")}
+            ${playerStat("Form", formLabel, "Form viser om spilleren har drukket mer eller mindre de siste 7 dagene sammenlignet med perioden før.")}
+            ${playerStat("TOTW", player.totw, "Antall ganger spilleren har vært på Team of the Week.")}
+            ${playerStat("League Carry", pct(carry), "Andel av ligaens totale pils som spilleren står for.")}
+            ${playerStat("Drikkedager", player.drinkingDays, "Antall dager spilleren har registrert minst én pils.")}
+            ${playerStat("Snitt", formatNumber(player.average), "Gjennomsnittlig antall pils på dagene spilleren faktisk har drukket.")}
           </div>
         </div>
       </article>
