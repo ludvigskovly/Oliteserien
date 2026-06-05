@@ -225,6 +225,101 @@ button:hover {
   text-overflow: ellipsis;
 }
 
+.sheet-stats-panel {
+  margin-bottom: 18px;
+}
+
+.sheet-stats {
+  display: grid;
+  gap: 22px;
+  padding: 16px;
+}
+
+.sheet-section {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet-section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.sheet-section-head {
+  display: grid;
+  gap: 8px;
+}
+
+.sheet-section-head h3 {
+  font-size: 20px;
+}
+
+.sheet-section-head p,
+.sheet-card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sheet-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sheet-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+
+.sheet-card h4 {
+  margin: 0;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.sheet-card p {
+  padding: 10px 14px 0;
+}
+
+.sheet-card .table-wrap {
+  max-height: 520px;
+}
+
+.sheet-card th,
+.sheet-card td {
+  padding: 9px 11px;
+}
+
+.sheet-card.compact {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.sheet-card.compact h4 {
+  color: var(--gold);
+}
+
+.value-card {
+  display: grid;
+}
+
+.value-card strong {
+  display: block;
+  padding: 12px 14px 16px;
+  font-size: 30px;
+  color: var(--gold);
+}
+
+.notes-card {
+  align-content: start;
+}
+
 .grid {
   display: grid;
   gap: 18px;

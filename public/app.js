@@ -111,6 +111,115 @@ function formatNumber(value) {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
+function text(value) {
+  return String(value || "").trim();
+}
+
+function escapeHtml(value) {
+  return text(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function cell(rows, row, column) {
+  return text(rows[row]?.[column]);
+}
+
+function tableFromColumns(rows, title, headerRow, columns, startRow, endRow, options = {}) {
+  const headers = columns.map((column) => cell(rows, headerRow, column));
+  const body = [];
+
+  for (let row = startRow; row <= endRow; row += 1) {
+    const values = columns.map((column) => cell(rows, row, column));
+    if (values.some(Boolean)) body.push(values);
+  }
+
+  return {
+    type: "table",
+    title,
+    description: options.description || "",
+    notes: options.notes || [],
+    headers,
+    rows: options.limit ? body.slice(0, options.limit) : body,
+  };
+}
+
+function valueCard(title, value, description = "") {
+  return { type: "value", title, value, description };
+}
+
+function buildSheetSections(rows) {
+  return [
+    {
+      title: cell(rows, 172, 5),
+      description: cell(rows, 172, 16),
+      items: [
+        tableFromColumns(rows, cell(rows, 172, 5), 174, [5, 6, 8, 9, 10, 11, 12], 175, 193),
+        {
+          type: "notes",
+          title: cell(rows, 172, 16),
+          notes: [cell(rows, 174, 16), cell(rows, 177, 16), cell(rows, 179, 16), cell(rows, 182, 16), cell(rows, 185, 16), cell(rows, 190, 16)].filter(Boolean),
+        },
+      ],
+    },
+    {
+      title: cell(rows, 196, 0),
+      items: [
+        tableFromColumns(rows, cell(rows, 198, 0), 200, [0, 1, 3], 201, 219),
+        tableFromColumns(rows, cell(rows, 198, 4), 200, [4, 5, 7], 201, 219),
+        tableFromColumns(rows, "The Clutch Factor", 200, [11, 12], 201, 219, { description: cell(rows, 200, 9) }),
+        tableFromColumns(rows, "The Tap-In Merchant", 200, [17, 18], 201, 219, { description: cell(rows, 200, 15) }),
+      ],
+    },
+    {
+      title: cell(rows, 220, 0),
+      items: [
+        tableFromColumns(rows, "Ligatotal (antall pils)", 222, [0, 1, 2], 223, 263),
+        tableFromColumns(rows, "League Carry (%)", 250, [17, 18], 226, 244, { description: cell(rows, 223, 17) }),
+        tableFromColumns(rows, "Social Influence", 250, [17, 18], 251, 269, { description: cell(rows, 247, 17) }),
+        tableFromColumns(rows, cell(rows, 252, 11), 257, [11, 12, 13, 14], 258, 267, { description: cell(rows, 253, 11) }),
+        tableFromColumns(rows, cell(rows, 228, 11), 229, [11, 12, 14, 15], 230, 248),
+        tableFromColumns(rows, cell(rows, 228, 6), 229, [6, 7, 9], 230, 230),
+        tableFromColumns(rows, cell(rows, 234, 6), 235, [6, 7, 9], 236, 236),
+        tableFromColumns(rows, cell(rows, 240, 6), 241, [6, 8], 242, 242),
+        tableFromColumns(rows, cell(rows, 246, 6), 247, [6, 8], 248, 248),
+        tableFromColumns(rows, cell(rows, 252, 6), 253, [6, 8], 254, 254),
+        tableFromColumns(rows, cell(rows, 258, 6), 259, [6, 8], 260, 260),
+        valueCard(cell(rows, 264, 6), cell(rows, 267, 6), cell(rows, 265, 6)),
+      ],
+    },
+    {
+      title: cell(rows, 270, 0),
+      description: cell(rows, 272, 5),
+      notes: [cell(rows, 275, 5), cell(rows, 275, 8), cell(rows, 278, 5), `${cell(rows, 280, 5)} ${cell(rows, 280, 8)} ${cell(rows, 280, 10)}`].filter(Boolean),
+      items: [
+        tableFromColumns(rows, cell(rows, 270, 0), 283, [6, 7], 285, 303),
+      ],
+    },
+    {
+      title: cell(rows, 309, 0),
+      notes: [cell(rows, 311, 0), cell(rows, 314, 0), cell(rows, 317, 0), cell(rows, 318, 0), cell(rows, 319, 0), cell(rows, 320, 0), cell(rows, 321, 0), cell(rows, 322, 0), cell(rows, 323, 0)].filter(Boolean),
+      items: [
+        tableFromColumns(rows, cell(rows, 311, 2), 311, [2, 3, 4, 6], 312, 330),
+        tableFromColumns(rows, cell(rows, 311, 8), 311, [8, 9], 312, 330),
+        tableFromColumns(rows, cell(rows, 311, 11), 311, [11, 12], 312, 330),
+        tableFromColumns(rows, cell(rows, 311, 14), 311, [14, 15], 312, 330),
+        tableFromColumns(rows, cell(rows, 311, 17), 311, [17, 18], 312, 330),
+      ],
+    },
+    {
+      title: cell(rows, 331, 0),
+      description: cell(rows, 333, 5),
+      notes: [cell(rows, 335, 5), cell(rows, 335, 7), cell(rows, 335, 9), cell(rows, 339, 5), cell(rows, 339, 7), cell(rows, 339, 9)].filter(Boolean),
+      items: [
+        tableFromColumns(rows, cell(rows, 331, 0), 344, [5, 7, 9], 345, 363),
+      ],
+    },
+  ].filter((section) => section.title);
+}
+
 function buildModel(rows) {
   const headerIndex = rows.findIndex((row) => String(row[0]).trim().toLowerCase() === "dato");
   if (headerIndex < 0) {
@@ -175,7 +284,9 @@ function buildModel(rows) {
   const xp = buildXp(days, names, latest?.date || new Date());
   const cumulative = buildCumulative(days, names);
 
-  return { names, days, activeDays, totals, league, latest, totalBeer, weeks, duos, xp, cumulative };
+  const sheetSections = buildSheetSections(rows);
+
+  return { names, days, activeDays, totals, league, latest, totalBeer, weeks, duos, xp, cumulative, sheetSections };
 }
 
 function readSheetMachineRatings(rows) {
@@ -362,6 +473,7 @@ function render(model) {
   renderMarket(model);
   renderPlayers(model);
   renderCumulativeChart(model);
+  renderSheetStats(model);
 
   $("#league-table").innerHTML = model.league.map((player, index) => `
     <tr>
@@ -462,29 +574,102 @@ function renderPlayers(model) {
 }
 
 function renderMarket(model) {
-  const leader = model.league[0];
-  const chaser = model.league[1];
-  const hottest = model.totals.slice().sort((a, b) => b.last7Total - a.last7Total || b.total - a.total)[0];
-  const biggestMover = model.totals.slice().sort((a, b) => b.momentum - a.momentum || b.last7Total - a.last7Total)[0];
-
   $("#market-watch").innerHTML = [
-    ["Leder", leader?.name || "-", leader ? `${formatNumber(leader.total)} pils` : "-"],
-    ["Avstand", leader && chaser ? `${formatNumber(leader.total - chaser.total)} til ${chaser.name}` : "-", "til andreplass"],
-    ["Siste 7 dager", hottest?.name || "-", hottest ? `${formatNumber(hottest.last7Total)} pils` : "-"],
-    ["Momentum", biggestMover?.name || "-", biggestMover ? `${biggestMover.momentum >= 0 ? "+" : ""}${formatNumber(biggestMover.momentum)}` : "-"],
-  ].map(([label, main, sub]) => `
-    <div class="ticker-card">
-      <span>${label}</span>
-      <strong>${main}</strong>
-      <small>${sub}</small>
-    </div>
-  `).join("");
+    {
+      title: "LIGATABELL",
+      headers: ["#", "Navn", "Poeng"],
+      rows: model.league.slice(0, 8).map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.total)]),
+    },
+    {
+      title: "PR",
+      headers: ["#", "Navn", "Poeng"],
+      rows: model.totals
+        .slice()
+        .sort((a, b) => b.pr - a.pr || b.total - a.total || a.name.localeCompare(b.name, "no"))
+        .slice(0, 8)
+        .map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.pr)]),
+    },
+  ].map(renderMiniTable).join("");
 
   $("#power-index").innerHTML = model.league.slice(0, 6).map((player, index) => `
     <div class="stat-line">
       <span>${index + 1}. ${player.name}</span>
       <strong>MR ${player.machineRating ?? "-"} / ${formatNumber(player.total)}</strong>
     </div>
+  `).join("");
+}
+
+function renderMiniTable(table) {
+  return `
+    <div class="sheet-card compact">
+      <h4>${escapeHtml(table.title)}</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>${table.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${table.rows.map((row) => `<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderSheetItem(item) {
+  if (item.type === "value") {
+    return `
+      <article class="sheet-card value-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
+        <strong>${escapeHtml(item.value)}</strong>
+      </article>
+    `;
+  }
+
+  if (item.type === "notes") {
+    return `
+      <article class="sheet-card notes-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        ${item.notes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+      </article>
+    `;
+  }
+
+  return `
+    <article class="sheet-card">
+      <h4>${escapeHtml(item.title)}</h4>
+      ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>${item.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${item.rows.map((row) => `<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  `;
+}
+
+function renderSheetStats(model) {
+  const target = $("#sheet-stats-content");
+  if (!target) return;
+
+  target.innerHTML = model.sheetSections.map((section) => `
+    <section class="sheet-section">
+      <div class="sheet-section-head">
+        <h3>${escapeHtml(section.title)}</h3>
+        ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
+        ${(section.notes || []).map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+      </div>
+      <div class="sheet-card-grid">
+        ${section.items.map(renderSheetItem).join("")}
+      </div>
+    </section>
   `).join("");
 }
 
