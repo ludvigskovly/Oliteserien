@@ -6,11 +6,15 @@
     { "src": "app.js", "use": "@vercel/static" },
     { "src": "styles.css", "use": "@vercel/static" },
     { "src": "crest.svg", "use": "@vercel/static" },
-    { "src": "jogge.jpg", "use": "@vercel/static" }
+    { "src": "jogge.jpg", "use": "@vercel/static" },
+    { "src": "stegane.jpg", "use": "@vercel/static" },
+    { "src": "augen.jpg", "use": "@vercel/static" },
+    { "src": "espen.jpg", "use": "@vercel/static" },
+    { "src": "ludde.jpg", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/sheet", "dest": "/api/sheet.js" },
-    { "src": "/(app\\.js|styles\\.css|crest\\.svg|jogge\\.jpg)", "dest": "/$1" },
+    { "src": "/(app\\.js|styles\\.css|crest\\.svg|jogge\\.jpg|stegane\\.jpg|augen\\.jpg|espen\\.jpg|ludde\\.jpg)", "dest": "/$1" },
     { "src": "/.*", "dest": "/index.html" }
   ],
   "headers": [

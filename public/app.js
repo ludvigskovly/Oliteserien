@@ -9,11 +9,39 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const PLAYER_META = {
   "Jøgge": {
-    fullName: "Jørgen",
+    fullName: "Jøgge",
     nickname: "Jøgge",
-    preferredBeer: "Hansa pilsner",
+    preferredBeer: "Hansa Pilsner",
     image: "./jogge.jpg",
     role: "Formspiller",
+  },
+  "Stegane": {
+    fullName: "Stegane",
+    nickname: "Stegane",
+    preferredBeer: "Hansa Premium",
+    image: "./stegane.jpg",
+    role: "Power ranking-profil",
+  },
+  "Augen": {
+    fullName: "Augen",
+    nickname: "Augen",
+    preferredBeer: "Tuborg Lite Mango Passion",
+    image: "./augen.jpg",
+    role: "Tabelljeger",
+  },
+  "Espen": {
+    fullName: "Espen",
+    nickname: "Espen",
+    preferredBeer: "Hansa Pilsner",
+    image: "./espen.jpg",
+    role: "Maskinrating-profil",
+  },
+  "Ludde": {
+    fullName: "Ludde",
+    nickname: "Ludde",
+    preferredBeer: "Hansa Pilsner",
+    image: "./ludde.jpg",
+    role: "PR-spesialist",
   },
 };
 const COLORS = [
@@ -585,12 +613,39 @@ function renderMarket(model) {
     },
   ].map(renderMiniTable).join("");
 
-  $("#power-index").innerHTML = model.league.slice(0, 6).map((player, index) => `
-    <div class="stat-line">
-      <span>${index + 1}. ${player.name}</span>
-      <strong>MR ${player.machineRating ?? "-"} / ${formatNumber(player.total)}</strong>
-    </div>
-  `).join("");
+  const ratingPlayers = model.totals
+    .slice()
+    .sort((a, b) => (b.machineRating ?? 0) - (a.machineRating ?? 0) || b.total - a.total || a.name.localeCompare(b.name, "no"));
+
+  $("#power-index").innerHTML = ratingPlayers.map((player, index) => {
+    const meta = PLAYER_META[player.name] || {};
+    const displayName = meta.fullName || player.name;
+    const initials = player.name.slice(0, 2).toUpperCase();
+    const image = meta.image
+      ? `<img class="rating-photo" src="${meta.image}" alt="${displayName}" />`
+      : `<div class="rating-initials">${initials}</div>`;
+
+    return `
+      <article class="rating-card">
+        <div class="rating-media">
+          ${image}
+          <span class="rating-rank">#${index + 1}</span>
+        </div>
+        <div class="rating-body">
+          <span class="rating-kicker">Maskinrating</span>
+          <h4>${displayName}</h4>
+          <p>${meta.preferredBeer || "Ølpreferanse ikke registrert"}</p>
+          <strong>${player.machineRating ?? "-"}</strong>
+          <div class="rating-stats">
+            <span>Total <b>${formatNumber(player.total)}</b></span>
+            <span>PR <b>${formatNumber(player.pr)}</b></span>
+            <span>TOTW <b>${player.totw}</b></span>
+            <span>Snitt <b>${formatNumber(player.average)}</b></span>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
 }
 
 function renderMiniTable(table) {
