@@ -537,7 +537,8 @@ function renderCumulativeChart(model) {
 async function load() {
   try {
     $("#refresh").disabled = true;
-    const payload = window.__SHEET_PAYLOAD__ || {};
+    const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname);
+    const payload = isLocal ? (window.__SHEET_PAYLOAD__ || {}) : {};
     if (payload.error) throw new Error(payload.error);
     if (!payload.csv && typeof fetch === "function") {
       const response = await fetch("/api/sheet");
