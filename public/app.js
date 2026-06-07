@@ -613,7 +613,7 @@ function renderBroadcastHero(model) {
         </div>
       </div>
       <div class="hero-scoreboard">
-        ${renderMetric("Leder", leader ? leader.name : "-", "league-total")}
+        ${renderMetric("Ligatotal", formatNumber(model.totalBeer), "league-total")}
         ${renderMetric("Avstand", leader && runnerUp ? `${formatNumber(gap)} pils` : "-", "score-card")}
         ${renderMetric("Dagens prestasjon", lastMvp ? `${lastMvp.name} ${formatNumber(lastMvp.value)}` : "-", "score-card")}
         ${renderMetric("Ukens pilstotal", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
