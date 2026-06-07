@@ -586,6 +586,29 @@ function renderPerformanceMetric(entry) {
   `;
 }
 
+function renderHeroTotwMetric(model) {
+  const activeWeeks = model.weeks.filter((week) => week.total > 0);
+  const week = activeWeeks.length <= 1 ? activeWeeks.at(-1) : activeWeeks.at(-2);
+  const label = activeWeeks.length <= 1 ? "TOTW (Denne uken)" : "TOTW (Forrige uke)";
+
+  if (!week?.entries.length) return renderMetric(label, "-", "score-card hero-totw-metric");
+
+  return `
+    <div class="metric score-card hero-totw-metric">
+      <span>${label}</span>
+      <div class="hero-totw-list">
+        ${week.entries.slice(0, 3).map((entry) => `
+          <div class="hero-totw-player">
+            ${playerAvatar(entry.name, "hero-totw-photo")}
+            <strong>${escapeHtml(entry.name)}</strong>
+            <small>${formatNumber(entry.total)} pils</small>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function playerMeta(name) {
   return PLAYER_META[name] || {};
 }
@@ -628,7 +651,7 @@ function renderBroadcastHero(model) {
       </div>
       <div class="hero-scoreboard">
         ${renderMetric("Ligatotal", formatNumber(model.totalBeer), "league-total")}
-        ${renderMetric("Avstand", leader && runnerUp ? `${formatNumber(gap)} pils` : "-", "score-card")}
+        ${renderHeroTotwMetric(model)}
         ${renderPerformanceMetric(lastMvp)}
         ${renderMetric("Ukens pilstotal", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
       </div>
@@ -905,12 +928,13 @@ function renderSheetStats(model) {
 function renderCumulativeChart(model) {
   const width = 1120;
   const height = 420;
-  const pad = { top: 24, right: 150, bottom: 64, left: 50 };
+  const pad = { top: 24, right: 210, bottom: 70, left: 50 };
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
   const maxY = Math.max(1, ...model.cumulative.flatMap((day) => day.values));
   const maxX = Math.max(1, model.cumulative.length - 1);
   const topPlayers = model.league.slice(0, 10).map((player) => player.index);
+  const chartDateLabel = (date) => SHORT_DATE.format(date).replace(/\.$/, "");
   const x = (dayIndex) => pad.left + (dayIndex / maxX) * plotWidth;
   const y = (value) => pad.top + plotHeight - (value / maxY) * plotHeight;
   const grid = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -924,24 +948,25 @@ function renderCumulativeChart(model) {
   const latestIndex = Math.max(0, model.days.findIndex((day) => model.latest && day.date.getTime() === model.latest.date.getTime()));
   const tickMap = new Map();
   model.days.forEach((day, dayIndex) => {
-    if (dayIndex === 0) tickMap.set(dayIndex, SHORT_DATE.format(day.date));
+    if (dayIndex === 0) tickMap.set(dayIndex, chartDateLabel(day.date));
     if ((day.date.getDay() === 1 || dayIndex === model.days.length - 1) && dayIndex !== latestIndex) {
-      tickMap.set(dayIndex, SHORT_DATE.format(day.date));
+      tickMap.set(dayIndex, chartDateLabel(day.date));
     }
   });
-  if (latestIndex >= 0) tickMap.set(latestIndex, `Siste pils ${SHORT_DATE.format(model.days[latestIndex].date)}`);
+  if (latestIndex >= 0) tickMap.set(latestIndex, `Siste pils (${chartDateLabel(model.days[latestIndex].date)})`);
 
   const xTicks = Array.from(tickMap.entries()).map(([dayIndex, label]) => {
     const tickX = x(dayIndex);
     const isLatest = dayIndex === latestIndex;
+    const isLast = dayIndex === model.days.length - 1;
     return `
       <line x1="${tickX}" x2="${tickX}" y1="${pad.top}" y2="${pad.top + plotHeight}" class="${isLatest ? "latest-date-line" : "date-line"}" />
       <line x1="${tickX}" x2="${tickX}" y1="${pad.top + plotHeight}" y2="${pad.top + plotHeight + 7}" class="axis-line" />
-      <text x="${tickX}" y="${height - (isLatest ? 18 : 12)}" class="${isLatest ? "latest-date-label" : "axis-label"}" text-anchor="${dayIndex === 0 ? "start" : dayIndex === model.days.length - 1 ? "end" : "middle"}">${escapeHtml(label)}</text>
+      <text x="${isLast ? tickX + 14 : tickX}" y="${height - (isLatest ? 34 : 12)}" class="${isLatest ? "latest-date-label" : "axis-label"}" text-anchor="${dayIndex === 0 || isLast ? "start" : "middle"}">${escapeHtml(label)}</text>
     `;
   }).join("");
 
-  const paths = topPlayers.map((playerIndex, seriesIndex) => {
+  const series = topPlayers.map((playerIndex, seriesIndex) => {
     const points = model.cumulative.map((day, dayIndex) => `${x(dayIndex)},${y(day.values[playerIndex] || 0)}`).join(" ");
     const last = model.cumulative.at(-1);
     const lastValue = last.values[playerIndex] || 0;
@@ -949,26 +974,51 @@ function renderCumulativeChart(model) {
     const meta = playerMeta(playerName);
     const imageHref = meta.image || "";
     const color = COLORS[seriesIndex % COLORS.length];
-    const tooltipX = Math.min(width - pad.right - 144, x(maxX) - 154);
-    const tooltipY = Math.max(pad.top + 8, Math.min(height - pad.bottom - 74, y(lastValue) - 42));
+    return { playerIndex, seriesIndex, points, lastValue, playerName, imageHref, color, naturalY: y(lastValue) };
+  });
+
+  const groupsByTotal = new Map();
+  series.forEach((item) => {
+    const key = formatNumber(item.lastValue);
+    if (!groupsByTotal.has(key)) groupsByTotal.set(key, []);
+    groupsByTotal.get(key).push(item);
+  });
+
+  const labelGroups = Array.from(groupsByTotal.entries())
+    .map(([value, members]) => ({
+      value,
+      members,
+      naturalY: Math.min(...members.map((member) => member.naturalY)),
+    }))
+    .sort((a, b) => a.naturalY - b.naturalY);
+
+  let nextLabelY = pad.top + 10;
+  labelGroups.forEach((group) => {
+    group.labelY = Math.max(group.naturalY, nextLabelY);
+    nextLabelY = group.labelY + 18;
+  });
+  for (let index = labelGroups.length - 1; index >= 0; index -= 1) {
+    const maxLabelY = pad.top + plotHeight - (labelGroups.length - 1 - index) * 18;
+    if (labelGroups[index].labelY > maxLabelY) labelGroups[index].labelY = maxLabelY;
+  }
+  const labelYByValue = Object.fromEntries(labelGroups.map((group) => [group.value, group.labelY]));
+
+  const paths = series.map((item) => `
+    <g class="chart-series" tabindex="0">
+      <polyline class="chart-hit-line" points="${item.points}" fill="none" stroke="transparent" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+      <polyline class="chart-player-line" points="${item.points}" fill="none" stroke="${item.color}" stroke-width="${item.seriesIndex < 4 ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="${x(maxX)}" cy="${y(item.lastValue)}" r="3.5" fill="${item.color}" />
+      ${renderChartTooltip(item, groupsByTotal.get(formatNumber(item.lastValue)), labelYByValue[formatNumber(item.lastValue)], width, height, pad)}
+    </g>
+  `).join("");
+
+  const labels = labelGroups.map((group) => {
+    const names = group.members.map((member) => member.playerName).join(" / ");
+    const color = group.members[0].color;
     return `
-      <g class="chart-series" tabindex="0">
-        <polyline class="chart-hit-line" points="${points}" fill="none" stroke="transparent" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
-        <polyline class="chart-player-line" points="${points}" fill="none" stroke="${color}" stroke-width="${seriesIndex < 4 ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round" />
-        <circle cx="${x(maxX)}" cy="${y(lastValue)}" r="3.5" fill="${color}" />
-        <text x="${width - pad.right + 12}" y="${y(lastValue) + 4}" class="legend-label" fill="${color}">${escapeHtml(playerName)} ${formatNumber(lastValue)}</text>
-        <g class="chart-player-tooltip" transform="translate(${tooltipX} ${tooltipY})">
-          <rect width="142" height="68" rx="8" />
-          ${imageHref ? `<image href="${escapeHtml(imageHref)}" x="10" y="10" width="48" height="48" preserveAspectRatio="xMidYMid slice" />` : `<circle cx="34" cy="34" r="24" fill="${color}" />`}
-          <text x="68" y="28" class="chart-tooltip-name">${escapeHtml(playerName)}</text>
-          <text x="68" y="48" class="chart-tooltip-value">${formatNumber(lastValue)} pils</text>
-        </g>
-      </g>
+      <text x="${width - pad.right + 12}" y="${group.labelY + 4}" class="legend-label" fill="${color}">${escapeHtml(names)} ${group.value}</text>
     `;
   }).join("");
-
-  const firstDate = model.days[0]?.date;
-  const lastDate = model.days.at(-1)?.date;
 
   $("#cumulative-chart").innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Kumulativ pils per person">
@@ -977,17 +1027,47 @@ function renderCumulativeChart(model) {
       ${xTicks}
       <line x1="${pad.left}" x2="${width - pad.right}" y1="${pad.top + plotHeight}" y2="${pad.top + plotHeight}" class="axis-line" />
       ${paths}
+      ${labels}
     </svg>
   `;
 
   document.querySelectorAll(".chart-series").forEach((series) => {
+    series.addEventListener("mouseenter", () => {
+      series.parentNode.appendChild(series);
+    });
+    series.addEventListener("focus", () => {
+      series.parentNode.appendChild(series);
+    });
     series.addEventListener("click", () => {
+      series.parentNode.appendChild(series);
       document.querySelectorAll(".chart-series.is-active").forEach((active) => {
         if (active !== series) active.classList.remove("is-active");
       });
       series.classList.toggle("is-active");
     });
   });
+}
+
+function renderChartTooltip(item, members, labelY, width, height, pad) {
+  const tooltipWidth = 214;
+  const rowHeight = 34;
+  const tooltipHeight = Math.max(68, 16 + members.length * rowHeight);
+  const tooltipX = Math.max(pad.left + 6, width - pad.right - tooltipWidth - 18);
+  const tooltipY = Math.max(pad.top + 6, Math.min(height - pad.bottom - tooltipHeight - 4, labelY - tooltipHeight / 2));
+
+  return `
+    <g class="chart-player-tooltip" transform="translate(${tooltipX} ${tooltipY})">
+      <rect width="${tooltipWidth}" height="${tooltipHeight}" rx="8" />
+      ${members.map((member, index) => {
+        const rowY = 10 + index * rowHeight;
+        return `
+          ${member.imageHref ? `<image href="${escapeHtml(member.imageHref)}" x="10" y="${rowY}" width="28" height="28" preserveAspectRatio="xMidYMin slice" />` : `<circle cx="24" cy="${rowY + 14}" r="14" fill="${member.color}" />`}
+          <text x="48" y="${rowY + 13}" class="chart-tooltip-name">${escapeHtml(member.playerName)}</text>
+          <text x="48" y="${rowY + 29}" class="chart-tooltip-value">${formatNumber(member.lastValue)} pils</text>
+        `;
+      }).join("")}
+    </g>
+  `;
 }
 
 async function load() {

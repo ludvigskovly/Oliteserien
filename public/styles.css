@@ -523,6 +523,7 @@ button:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 24%;
   display: block;
 }
 
@@ -752,6 +753,7 @@ button:hover {
 .chart-player-tooltip {
   opacity: 0;
   pointer-events: none;
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.44));
 }
 
 .chart-player-tooltip rect {
@@ -1122,11 +1124,14 @@ button {
 
 .hero-leader-photo,
 .avatar,
+.metric-player-photo,
+.hero-totw-photo,
 .table-avatar,
 .totw-avatar {
   display: inline-grid;
   place-items: center;
   object-fit: cover;
+  object-position: center 24%;
   border-radius: 999px;
   background: var(--arena);
   color: white;
@@ -1181,6 +1186,46 @@ button {
   flex: 0 0 auto;
   border: 2px solid rgba(242, 189, 85, 0.86);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+}
+
+.hero-totw-metric {
+  align-content: start;
+}
+
+.hero-totw-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hero-totw-player {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hero-totw-photo {
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(242, 189, 85, 0.82);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.hero-totw-player strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.hero-totw-player small {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .metric-player strong {
