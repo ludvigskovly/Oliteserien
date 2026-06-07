@@ -43,12 +43,26 @@ const PLAYER_META = {
     image: "./elling.jpg",
     role: "Øliteserien spiller",
   },
+  "Alf": {
+    fullName: "Alf",
+    nickname: "Alf",
+    preferredBeer: "Hansa Pilsner",
+    image: "./alf.jpg",
+    role: "Øliteserien spiller",
+  },
   "Ludde": {
     fullName: "Ludde",
     nickname: "Ludde",
     preferredBeer: "Hansa Pilsner",
     image: "./ludde.jpg",
     role: "PR-spesialist",
+  },
+  "Tage": {
+    fullName: "Tage",
+    nickname: "Tage",
+    preferredBeer: "Kuli Eple",
+    image: "./tage.jpg",
+    role: "Øliteserien spiller",
   },
 };
 const COLORS = [
