@@ -535,9 +535,30 @@ button:hover {
   left: 12px;
   padding: 7px 10px;
   border-radius: 8px;
-  background: rgba(8, 11, 15, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #ffffff;
+  border: 1px solid rgba(7, 16, 12, 0.18);
+  color: #07100c;
   font-weight: 900;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.player-rank.rank-1,
+.player-rank.rank-2,
+.player-rank.rank-3 {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.player-rank.rank-1 {
+  background: linear-gradient(135deg, #d69d23, #f2cf6b);
+}
+
+.player-rank.rank-2 {
+  background: linear-gradient(135deg, #8f98a3, #cfd5dd);
+}
+
+.player-rank.rank-3 {
+  background: linear-gradient(135deg, #9b5f32, #c98b59);
 }
 
 .player-body {

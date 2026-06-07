@@ -64,6 +64,20 @@ const PLAYER_META = {
     image: "./kal.jpg",
     role: "Øliteserien spiller",
   },
+  "Kiffen": {
+    fullName: "Kiffen",
+    nickname: "Kiffen",
+    preferredBeer: "Mythos",
+    image: "./kiffen.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Jens": {
+    fullName: "Jens",
+    nickname: "Jens",
+    preferredBeer: "Birra Moretti",
+    image: "./jens.jpg",
+    role: "Øliteserien spiller",
+  },
   "Hegre": {
     fullName: "Hegre",
     nickname: "Hegre",
@@ -664,7 +678,7 @@ function renderPlayers(model) {
       <article class="player-card">
         <div class="player-media">
           ${image}
-          <div class="player-rank">#${rankIndex + 1}</div>
+          <div class="player-rank rank-${rankIndex + 1}">#${rankIndex + 1}</div>
         </div>
         <div class="player-body">
           <div class="player-kicker">${meta.role || "Øliteserien spiller"}</div>
