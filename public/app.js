@@ -572,11 +572,65 @@ function renderMetric(label, value, className = "") {
   return `<div class="metric ${className}"><span>${label}</span><strong>${value}</strong></div>`;
 }
 
+function playerMeta(name) {
+  return PLAYER_META[name] || {};
+}
+
+function playerAvatar(name, className = "avatar") {
+  const meta = playerMeta(name);
+  const label = escapeHtml(meta.fullName || name);
+  if (meta.image) return `<img class="${className}" src="${meta.image}" alt="${label}" />`;
+  return `<span class="${className} avatar-fallback">${escapeHtml(name.slice(0, 2).toUpperCase())}</span>`;
+}
+
+function renderBroadcastHero(model) {
+  const leader = model.league[0];
+  const runnerUp = model.league[1];
+  const latest = model.latest;
+  const latestEntries = latest
+    ? model.names.map((name, index) => ({ name, value: latest.values[index] || 0 })).filter((entry) => entry.value > 0).sort((a, b) => b.value - a.value)
+    : [];
+  const lastMvp = latestEntries[0];
+  const currentWeek = model.weeks.filter((week) => week.total > 0).at(-1);
+  const gap = leader && runnerUp ? leader.total - runnerUp.total : 0;
+
+  $("#metrics").innerHTML = `
+    <section class="broadcast-hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Øliteserien Fantasy League</span>
+        <h2>Sesongen lever. Tabellen snakker.</h2>
+        <p>
+          ${leader ? `${leader.name} holder førsteplassen` : "Ligaen venter på første registrering"}
+          ${runnerUp ? `, men ${runnerUp.name} er ${formatNumber(gap)} pils bak.` : "."}
+        </p>
+      </div>
+      <div class="hero-leader-card">
+        ${leader ? playerAvatar(leader.name, "hero-leader-photo") : ""}
+        <div>
+          <span>League Leader</span>
+          <strong>${leader ? escapeHtml(leader.name) : "-"}</strong>
+          <small>${leader ? `${formatNumber(leader.total)} pils · PR ${formatNumber(leader.pr)}` : "Ingen leder enda"}</small>
+        </div>
+      </div>
+      <div class="hero-scoreboard">
+        ${renderMetric("Total Beer Count", formatNumber(model.totalBeer), "league-total")}
+        ${renderMetric("Chase Gap", leader && runnerUp ? formatNumber(gap) : "-", "score-card")}
+        ${renderMetric("Siste MVP", lastMvp ? `${lastMvp.name} ${formatNumber(lastMvp.value)}` : "-", "score-card")}
+        ${renderMetric("Ukens total", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
+      </div>
+    </section>
+  `;
+}
+
 function renderRank(items, target, valueKey, formatter = (value) => value) {
   const max = Math.max(1, ...items.map((item) => item[valueKey]));
-  $(target).innerHTML = items.slice(0, 8).map((item) => `
+  $(target).innerHTML = items.map((item, index) => `
     <div class="rank">
-      <b>${item.name}</b>
+      <span class="rank-badge">${index + 1}</span>
+      <div>
+        <b>${item.name}</b>
+        <small>${index === 0 ? "Leder racet" : `${formatNumber(max - item[valueKey])} bak lederen`}</small>
+      </div>
       <strong>${formatter(item[valueKey], item)}</strong>
       <div class="bar"><span style="width:${Math.max(4, (item[valueKey] / max) * 100)}%"></span></div>
     </div>
@@ -597,7 +651,7 @@ function render(model) {
   $("#updated").textContent = `Oppdatert ${new Date().toLocaleTimeString("no-NO", { hour: "2-digit", minute: "2-digit" })}`;
   $("#range").textContent = `${DATE_FORMAT.format(model.days[0].date)} - ${DATE_FORMAT.format(model.days.at(-1).date)}`;
 
-  $("#metrics").innerHTML = renderMetric("TOTAL BEER COUNT (ØLITESERIEN)", formatNumber(model.totalBeer), "league-total");
+  renderBroadcastHero(model);
 
   renderMarket(model);
   renderPlayers(model);
@@ -607,14 +661,15 @@ function render(model) {
   $("#totw-list").innerHTML = model.weeks.map((week) => `
     <div class="week">
       <div class="week-head">
-        <span>${SHORT_DATE.format(week.start)} - ${SHORT_DATE.format(week.end)}</span>
-        <span>${formatNumber(week.total)} pils</span>
+        <span>Gameweek ${model.weeks.indexOf(week) + 1} · ${SHORT_DATE.format(week.start)} - ${SHORT_DATE.format(week.end)}</span>
+        <span>${formatNumber(week.total)} pils totalt</span>
       </div>
       ${week.entries.length ? week.entries.map((entry, index) => `
         <div class="totw-row">
           <span class="position">${index + 1}</span>
+          ${playerAvatar(entry.name, "totw-avatar")}
           <b>${entry.name}</b>
-          <span>${formatNumber(entry.total)}</span>
+          <span>${formatNumber(entry.total)} pils · PR ${formatNumber(entry.pr)}</span>
         </div>
       `).join("") : `<div class="totw-row"><span class="position">-</span><b>Ikke spilt</b><span>0</span></div>`}
     </div>
@@ -631,7 +686,7 @@ function render(model) {
     <tr>
       <td><strong>${duo.broder1}</strong></td>
       <td>${duo.broder2}</td>
-      <td>${duo.days}</td>
+      <td><span class="duo-score">${duo.days}</span></td>
     </tr>
   `).join("");
 
@@ -654,7 +709,7 @@ function render(model) {
 function renderPlayers(model) {
   const maxTotal = Math.max(1, ...model.league.map((player) => player.total));
   $("#player-view").innerHTML = model.league.map((player, rankIndex) => {
-    const meta = PLAYER_META[player.name] || {};
+    const meta = playerMeta(player.name);
     const displayName = meta.fullName || player.name;
     const nickname = meta.nickname || player.name;
     const carry = player.total / Math.max(1, model.totalBeer);
@@ -669,11 +724,16 @@ function renderPlayers(model) {
         <div class="player-media">
           ${image}
           <div class="player-rank rank-${rankIndex + 1}">#${rankIndex + 1}</div>
+          <div class="player-card-tag">Draft Card</div>
         </div>
         <div class="player-body">
           <div class="player-kicker">${meta.role || "Øliteserien spiller"}</div>
           <h3>${displayName}</h3>
           <p class="player-alias">${nickname}${meta.preferredBeer ? ` · ${meta.preferredBeer}` : ""}</p>
+          <div class="player-headline">
+            <strong>${player.machineRating ?? "-"} OVR</strong>
+            <span>${formatNumber(player.total)} pils på sesongen</span>
+          </div>
           <div class="player-meter">
             <span style="width:${Math.max(4, (player.total / maxTotal) * 100)}%"></span>
           </div>
@@ -696,13 +756,15 @@ function renderPlayers(model) {
 function renderMarket(model) {
   $("#market-watch").innerHTML = [
     {
-      title: "LIGATABELL",
-      headers: ["#", "Navn", "Pils"],
-      rows: model.league.map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.total)]),
+      title: "Ligatabell",
+      subtitle: "Sesongens standings",
+      headers: ["#", "Pilser", "Pils", "PR"],
+      rows: model.league.map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.total), formatNumber(player.pr)]),
     },
     {
       title: "PR (Personlig Rekord)",
-      headers: ["#", "Navn", "Pils"],
+      subtitle: "Single-game leaderboard",
+      headers: ["#", "Pilser", "Pils"],
       rows: model.totals
         .slice()
         .sort((a, b) => b.pr - a.pr || b.total - a.total || a.name.localeCompare(b.name, "no"))
@@ -713,15 +775,18 @@ function renderMarket(model) {
 
 function renderMiniTable(table) {
   return `
-    <div class="sheet-card compact sheet-table-card">
-      <h4>${escapeHtml(table.title)}</h4>
+    <div class="sheet-card compact sheet-table-card fantasy-table">
+      <div class="fantasy-table-title">
+        <h4>${escapeHtml(table.title)}</h4>
+        ${table.subtitle ? `<span>${escapeHtml(table.subtitle)}</span>` : ""}
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>${table.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
           </thead>
           <tbody>
-            ${table.rows.map((row, index) => `<tr class="${index < 3 ? `podium podium-${index + 1}` : ""}">${row.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+            ${table.rows.map((row, index) => `<tr class="${index < 3 ? `podium podium-${index + 1}` : ""}">${row.map((value, columnIndex) => `<td>${columnIndex === 1 ? playerAvatar(value, "table-avatar") : ""}${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
           </tbody>
         </table>
       </div>

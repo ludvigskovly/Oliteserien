@@ -19,11 +19,11 @@
         </div>
 
         <nav class="nav" aria-label="Dashboard">
-          <a href="#overview">Ligatabell</a>
+          <a href="#overview">Fantasy Hub</a>
           <a href="#players">Pilsere</a>
           <a href="#chart">Trendoversikt</a>
           <a href="#totw">TOTW</a>
-          <a href="#stats">Stats</a>
+          <a href="#stats">Award Races</a>
           <a href="#duos">Duos</a>
         </nav>
 
@@ -37,7 +37,7 @@
       <main>
         <section class="topbar">
           <div>
-            <h2>Dashboard</h2>
+            <h2>Øliteserien Live</h2>
             <p id="range">Leser regnearket...</p>
           </div>
           <button id="refresh" type="button">Oppdater</button>
@@ -48,8 +48,8 @@
         <section class="market-grid" id="overview">
           <div class="panel hero-panel">
             <div class="panel-head">
-              <h3>LIGATABELL</h3>
-              <span>PR (Personlig Rekord)</span>
+              <h3>Fantasy Hub</h3>
+              <span>Ligatabell + rekordjakt</span>
             </div>
             <div id="market-watch" class="market-watch"></div>
           </div>
@@ -58,6 +58,7 @@
         <section class="panel players-panel" id="players">
           <div class="panel-head">
             <h3>Pilsere</h3>
+            <span>Spillerkort sortert etter tabellen</span>
           </div>
           <div id="player-view" class="player-carousel"></div>
         </section>
@@ -65,7 +66,7 @@
         <section class="panel chart-panel" id="chart">
           <div class="panel-head">
             <h3>Kumulativ Pils</h3>
-            <span>Alle spillere over tid</span>
+            <span>Sesongens momentumgraf</span>
           </div>
           <div id="cumulative-chart" class="chart-area"></div>
         </section>
@@ -74,7 +75,7 @@
           <div class="panel" id="totw">
             <div class="panel-head">
               <h3>Team of the Week</h3>
-              <span>Uketotal + ukens PR</span>
+              <span>Ukens startellever, bare med tre plasser</span>
             </div>
             <div id="totw-list" class="week-list"></div>
           </div>
@@ -84,7 +85,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>The Alcoholic</h3>
-              <span>Drikkedager</span>
+              <span>Availability award</span>
             </div>
             <p class="stat-description">Rangerer etter hvor mange dager personen har registrert minst én pils til og med i dag.</p>
             <div id="drinking-days" class="rank-list"></div>
@@ -93,7 +94,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>Sleep Merchant</h3>
-              <span>Sovedager</span>
+              <span>Benken award</span>
             </div>
             <p class="stat-description">Motsatsen til The Alcoholic: dager uten registrert pils til og med i dag.</p>
             <div id="sleep-days" class="rank-list"></div>
@@ -102,7 +103,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>xP</h3>
-              <span>Forventet pils</span>
+              <span>Fantasy projection</span>
             </div>
             <p class="stat-description">Anslår forventet pils basert på personens egen ukedagshistorikk og form.</p>
             <div id="xp-list" class="rank-list"></div>
@@ -113,7 +114,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>PR</h3>
-              <span>Beste enkeltdag</span>
+              <span>Single-game record</span>
             </div>
             <p class="stat-description">Personlig rekord: høyeste antall pils registrert på én dag.</p>
             <div id="pr-list" class="rank-list"></div>
@@ -122,7 +123,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>League Carry</h3>
-              <span>Andel av totalen</span>
+              <span>Franchise player-index</span>
             </div>
             <p class="stat-description">Hvor stor andel av ligaens totale pils hver person står for.</p>
             <div id="carry-list" class="rank-list"></div>
@@ -131,7 +132,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>Hot Streaks</h3>
-              <span>Dager på rad</span>
+              <span>Formkurve</span>
             </div>
             <p class="stat-description">Lengste rekke med drikkedager, med nåværende streak vist etter skråstreken.</p>
             <div id="streak-list" class="rank-list"></div>
@@ -142,7 +143,7 @@
           <div class="panel" id="duos">
             <div class="panel-head">
               <h3>Dynamic Duos</h3>
-              <span>Tiebreaker: samlet pils</span>
+              <span>Beste kjemi i ligaen</span>
             </div>
             <div class="table-wrap">
               <table>
@@ -161,7 +162,7 @@
           <div class="panel">
             <div class="panel-head">
               <h3>League Stats</h3>
-              <span>Aktivitet</span>
+              <span>Sesongrekorder</span>
             </div>
             <div id="league-stats" class="stat-stack"></div>
           </div>
@@ -174,6 +175,6 @@
     </div>
 
     <!--SHEET_DATA-->
-    <script src="./app.js?v=30"></script>
+    <script src="./app.js?v=31"></script>
   </body>
 </html>
