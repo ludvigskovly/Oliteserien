@@ -81,7 +81,7 @@ const PLAYER_META = {
   "Hegre": {
     fullName: "Hegre",
     nickname: "Hegre",
-    preferredBeer: "Bare Lite",
+    preferredBeer: "Grans Bare Lite",
     image: "./hegre.jpg",
     role: "Øliteserien spiller",
   },
