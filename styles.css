@@ -722,6 +722,76 @@ button:hover {
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
+.date-line {
+  stroke: rgba(154, 166, 160, 0.18);
+  stroke-width: 1;
+}
+
+.latest-date-line {
+  stroke: rgba(242, 189, 85, 0.72);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 6;
+}
+
+.latest-date-label {
+  fill: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.chart-series {
+  outline: none;
+}
+
+.chart-player-line,
+.chart-player-tooltip {
+  transition: opacity 0.16s ease, stroke-width 0.16s ease, filter 0.16s ease;
+}
+
+.chart-player-tooltip {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chart-player-tooltip rect {
+  fill: rgba(7, 16, 12, 0.94);
+  stroke: rgba(242, 189, 85, 0.48);
+}
+
+.chart-player-tooltip image {
+  clip-path: inset(0 round 999px);
+}
+
+.chart-tooltip-name,
+.chart-tooltip-value {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900;
+}
+
+.chart-tooltip-name {
+  fill: white;
+  font-size: 14px;
+}
+
+.chart-tooltip-value {
+  fill: var(--gold);
+  font-size: 12px;
+}
+
+.chart-series:hover .chart-player-line,
+.chart-series:focus .chart-player-line,
+.chart-series.is-active .chart-player-line {
+  stroke-width: 5;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.chart-series:hover .chart-player-tooltip,
+.chart-series:focus .chart-player-tooltip,
+.chart-series.is-active .chart-player-tooltip {
+  opacity: 1;
+}
+
 .axis-label {
   fill: var(--muted);
 }
@@ -935,7 +1005,7 @@ tbody tr:last-child td {
   }
 }
 
-/* Fantasy sports redesign */
+/* Sports broadcast redesign */
 :root {
   --arena: #07100c;
   --arena-2: #101b15;
@@ -1141,7 +1211,7 @@ button {
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
 }
 
-.fantasy-table-title {
+.league-table-title {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -1151,14 +1221,14 @@ button {
   border-bottom: 1px solid var(--sheet-grid);
 }
 
-.fantasy-table-title h4 {
+.league-table-title h4 {
   padding: 0;
   border: 0;
   font-size: 22px;
   text-transform: uppercase;
 }
 
-.fantasy-table-title span {
+.league-table-title span {
   color: var(--muted);
   font-weight: 850;
 }

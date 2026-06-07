@@ -593,30 +593,30 @@ function renderBroadcastHero(model) {
   const lastMvp = latestEntries[0];
   const currentWeek = model.weeks.filter((week) => week.total > 0).at(-1);
   const gap = leader && runnerUp ? leader.total - runnerUp.total : 0;
+  const statusText = leader
+    ? `${leader.name} i ledelse${runnerUp ? ` - jaktes av ${runnerUp.name}, ${formatNumber(gap)} pils bak` : ""}.`
+    : "Ligaen venter på første registrering.";
 
   $("#metrics").innerHTML = `
     <section class="broadcast-hero">
       <div class="hero-copy">
-        <span class="eyebrow">Øliteserien Fantasy League</span>
-        <h2>Sesongen lever. Tabellen snakker.</h2>
-        <p>
-          ${leader ? `${leader.name} holder førsteplassen` : "Ligaen venter på første registrering"}
-          ${runnerUp ? `, men ${runnerUp.name} er ${formatNumber(gap)} pils bak.` : "."}
-        </p>
+        <span class="eyebrow">Øliteserien tabellstatistikk og spillerprestasjoner</span>
+        <h2>Slaget om sommeren godt i gang.</h2>
+        <p>${escapeHtml(statusText)}</p>
       </div>
       <div class="hero-leader-card">
         ${leader ? playerAvatar(leader.name, "hero-leader-photo") : ""}
         <div>
-          <span>League Leader</span>
+          <span>Leder</span>
           <strong>${leader ? escapeHtml(leader.name) : "-"}</strong>
           <small>${leader ? `${formatNumber(leader.total)} pils · PR ${formatNumber(leader.pr)}` : "Ingen leder enda"}</small>
         </div>
       </div>
       <div class="hero-scoreboard">
-        ${renderMetric("Total Beer Count", formatNumber(model.totalBeer), "league-total")}
-        ${renderMetric("Chase Gap", leader && runnerUp ? formatNumber(gap) : "-", "score-card")}
-        ${renderMetric("Siste MVP", lastMvp ? `${lastMvp.name} ${formatNumber(lastMvp.value)}` : "-", "score-card")}
-        ${renderMetric("Ukens total", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
+        ${renderMetric("Leder", leader ? leader.name : "-", "league-total")}
+        ${renderMetric("Avstand", leader && runnerUp ? `${formatNumber(gap)} pils` : "-", "score-card")}
+        ${renderMetric("Dagens prestasjon", lastMvp ? `${lastMvp.name} ${formatNumber(lastMvp.value)}` : "-", "score-card")}
+        ${renderMetric("Ukens pilstotal", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
       </div>
     </section>
   `;
@@ -730,10 +730,6 @@ function renderPlayers(model) {
           <div class="player-kicker">${meta.role || "Øliteserien spiller"}</div>
           <h3>${displayName}</h3>
           <p class="player-alias">${nickname}${meta.preferredBeer ? ` · ${meta.preferredBeer}` : ""}</p>
-          <div class="player-headline">
-            <strong>${player.machineRating ?? "-"} OVR</strong>
-            <span>${formatNumber(player.total)} pils på sesongen</span>
-          </div>
           <div class="player-meter">
             <span style="width:${Math.max(4, (player.total / maxTotal) * 100)}%"></span>
           </div>
@@ -745,6 +741,7 @@ function renderPlayers(model) {
             ${playerStat("TOTW", player.totw, "Antall ganger spilleren har vært på Team of the Week.")}
             ${playerStat("League Carry", pct(carry), "Andel av ligaens totale pils som spilleren står for.")}
             ${playerStat("Drikkedager", player.drinkingDays, "Antall dager spilleren har registrert minst én pils.")}
+            ${playerStat("Lengste streak", player.bestStreak, "Lengste rekke med drikkedager på rad.")}
             ${playerStat("Snitt", formatNumber(player.average), "Gjennomsnittlig antall pils på dagene spilleren faktisk har drukket.")}
           </div>
         </div>
@@ -757,13 +754,13 @@ function renderMarket(model) {
   $("#market-watch").innerHTML = [
     {
       title: "Ligatabell",
-      subtitle: "Sesongens standings",
+      subtitle: "",
       headers: ["#", "Pilser", "Pils", "PR"],
       rows: model.league.map((player, index) => [`${index + 1}.`, player.name, formatNumber(player.total), formatNumber(player.pr)]),
     },
     {
       title: "PR (Personlig Rekord)",
-      subtitle: "Single-game leaderboard",
+      subtitle: "Antall pils på én dag",
       headers: ["#", "Pilser", "Pils"],
       rows: model.totals
         .slice()
@@ -775,8 +772,8 @@ function renderMarket(model) {
 
 function renderMiniTable(table) {
   return `
-    <div class="sheet-card compact sheet-table-card fantasy-table">
-      <div class="fantasy-table-title">
+    <div class="sheet-card compact sheet-table-card league-table-card">
+      <div class="league-table-title">
         <h4>${escapeHtml(table.title)}</h4>
         ${table.subtitle ? `<span>${escapeHtml(table.subtitle)}</span>` : ""}
       </div>
@@ -895,7 +892,7 @@ function renderSheetStats(model) {
 function renderCumulativeChart(model) {
   const width = 1120;
   const height = 420;
-  const pad = { top: 24, right: 140, bottom: 42, left: 50 };
+  const pad = { top: 24, right: 150, bottom: 64, left: 50 };
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
   const maxY = Math.max(1, ...model.cumulative.flatMap((day) => day.values));
@@ -911,15 +908,49 @@ function renderCumulativeChart(model) {
     `;
   }).join("");
 
+  const latestIndex = Math.max(0, model.days.findIndex((day) => model.latest && day.date.getTime() === model.latest.date.getTime()));
+  const tickMap = new Map();
+  model.days.forEach((day, dayIndex) => {
+    if (dayIndex === 0) tickMap.set(dayIndex, SHORT_DATE.format(day.date));
+    if ((day.date.getDay() === 1 || dayIndex === model.days.length - 1) && dayIndex !== latestIndex) {
+      tickMap.set(dayIndex, SHORT_DATE.format(day.date));
+    }
+  });
+  if (latestIndex >= 0) tickMap.set(latestIndex, `Siste pils ${SHORT_DATE.format(model.days[latestIndex].date)}`);
+
+  const xTicks = Array.from(tickMap.entries()).map(([dayIndex, label]) => {
+    const tickX = x(dayIndex);
+    const isLatest = dayIndex === latestIndex;
+    return `
+      <line x1="${tickX}" x2="${tickX}" y1="${pad.top}" y2="${pad.top + plotHeight}" class="${isLatest ? "latest-date-line" : "date-line"}" />
+      <line x1="${tickX}" x2="${tickX}" y1="${pad.top + plotHeight}" y2="${pad.top + plotHeight + 7}" class="axis-line" />
+      <text x="${tickX}" y="${height - (isLatest ? 18 : 12)}" class="${isLatest ? "latest-date-label" : "axis-label"}" text-anchor="${dayIndex === 0 ? "start" : dayIndex === model.days.length - 1 ? "end" : "middle"}">${escapeHtml(label)}</text>
+    `;
+  }).join("");
+
   const paths = topPlayers.map((playerIndex, seriesIndex) => {
     const points = model.cumulative.map((day, dayIndex) => `${x(dayIndex)},${y(day.values[playerIndex] || 0)}`).join(" ");
     const last = model.cumulative.at(-1);
     const lastValue = last.values[playerIndex] || 0;
+    const playerName = model.names[playerIndex];
+    const meta = playerMeta(playerName);
+    const imageHref = meta.image || "";
     const color = COLORS[seriesIndex % COLORS.length];
+    const tooltipX = Math.min(width - pad.right - 144, x(maxX) - 154);
+    const tooltipY = Math.max(pad.top + 8, Math.min(height - pad.bottom - 74, y(lastValue) - 42));
     return `
-      <polyline points="${points}" fill="none" stroke="${color}" stroke-width="${seriesIndex < 4 ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round" />
-      <circle cx="${x(maxX)}" cy="${y(lastValue)}" r="3.5" fill="${color}" />
-      <text x="${width - pad.right + 12}" y="${y(lastValue) + 4}" class="legend-label" fill="${color}">${model.names[playerIndex]} ${formatNumber(lastValue)}</text>
+      <g class="chart-series" tabindex="0">
+        <polyline class="chart-hit-line" points="${points}" fill="none" stroke="transparent" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+        <polyline class="chart-player-line" points="${points}" fill="none" stroke="${color}" stroke-width="${seriesIndex < 4 ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="${x(maxX)}" cy="${y(lastValue)}" r="3.5" fill="${color}" />
+        <text x="${width - pad.right + 12}" y="${y(lastValue) + 4}" class="legend-label" fill="${color}">${escapeHtml(playerName)} ${formatNumber(lastValue)}</text>
+        <g class="chart-player-tooltip" transform="translate(${tooltipX} ${tooltipY})">
+          <rect width="142" height="68" rx="8" />
+          ${imageHref ? `<image href="${escapeHtml(imageHref)}" x="10" y="10" width="48" height="48" preserveAspectRatio="xMidYMid slice" />` : `<circle cx="34" cy="34" r="24" fill="${color}" />`}
+          <text x="68" y="28" class="chart-tooltip-name">${escapeHtml(playerName)}</text>
+          <text x="68" y="48" class="chart-tooltip-value">${formatNumber(lastValue)} pils</text>
+        </g>
+      </g>
     `;
   }).join("");
 
@@ -930,12 +961,20 @@ function renderCumulativeChart(model) {
     <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Kumulativ pils per person">
       <rect x="0" y="0" width="${width}" height="${height}" rx="0" class="chart-bg" />
       ${grid}
+      ${xTicks}
       <line x1="${pad.left}" x2="${width - pad.right}" y1="${pad.top + plotHeight}" y2="${pad.top + plotHeight}" class="axis-line" />
-      <text x="${pad.left}" y="${height - 14}" class="axis-label">${SHORT_DATE.format(firstDate)}</text>
-      <text x="${width - pad.right}" y="${height - 14}" class="axis-label" text-anchor="end">${SHORT_DATE.format(lastDate)}</text>
       ${paths}
     </svg>
   `;
+
+  document.querySelectorAll(".chart-series").forEach((series) => {
+    series.addEventListener("click", () => {
+      document.querySelectorAll(".chart-series.is-active").forEach((active) => {
+        if (active !== series) active.classList.remove("is-active");
+      });
+      series.classList.toggle("is-active");
+    });
+  });
 }
 
 async function load() {
