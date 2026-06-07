@@ -738,7 +738,6 @@ function renderPlayers(model) {
         <div class="player-media">
           ${image}
           <div class="player-rank rank-${rankIndex + 1}">#${rankIndex + 1}</div>
-          <div class="player-card-tag">Draft Card</div>
         </div>
         <div class="player-body">
           <div class="player-kicker">${meta.role || "Øliteserien spiller"}</div>
@@ -748,15 +747,15 @@ function renderPlayers(model) {
             <span style="width:${Math.max(4, (player.total / maxTotal) * 100)}%"></span>
           </div>
           <div class="player-stats">
-            ${playerStat("Maskinrating", player.machineRating ?? "-", "Sammensatt rating fra regnearket basert på total, snitt, PR, TOTW og form.", "machine-rating")}
-            ${playerStat("Total", formatNumber(player.total), "Totalt antall pils registrert for spilleren.")}
-            ${playerStat("PR", formatNumber(player.pr), "Personlig rekord: høyeste antall pils spilleren har registrert på én dag.")}
+            ${playerStat("Maskinrating", player.machineRating != null ? `${formatNumber(player.machineRating)} OVR` : "-", "Sammensatt rating fra regnearket basert på total, snitt, PR, TOTW og form.", "machine-rating")}
+            ${playerStat("Total", `${formatNumber(player.total)} pils`, "Totalt antall pils registrert for spilleren.")}
+            ${playerStat("PR", `${formatNumber(player.pr)} pils`, "Personlig rekord: høyeste antall pils spilleren har registrert på én dag.")}
             ${playerStat("Form", formLabel, "Form viser om spilleren har drukket mer eller mindre de siste 7 dagene sammenlignet med perioden før.")}
             ${playerStat("TOTW", player.totw, "Antall ganger spilleren har vært på Team of the Week.")}
             ${playerStat("League Carry", pct(carry), "Andel av ligaens totale pils som spilleren står for.")}
-            ${playerStat("Drikkedager", player.drinkingDays, "Antall dager spilleren har registrert minst én pils.")}
-            ${playerStat("Lengste streak", player.bestStreak, "Lengste rekke med drikkedager på rad.")}
-            ${playerStat("Snitt", formatNumber(player.average), "Gjennomsnittlig antall pils på dagene spilleren faktisk har drukket.")}
+            ${playerStat("Drikkedager", `${player.drinkingDays} dager`, "Antall dager spilleren har registrert minst én pils.")}
+            ${playerStat("Lengste streak", `${player.bestStreak} dager`, "Lengste rekke med drikkedager på rad.")}
+            ${playerStat("Snitt", `${formatNumber(player.average)} pils`, "Gjennomsnittlig antall pils på dagene spilleren faktisk har drukket.")}
           </div>
         </div>
       </article>
