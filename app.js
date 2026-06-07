@@ -774,7 +774,7 @@ function renderPlayers(model) {
             ${playerStat("Total", `${formatNumber(player.total)} pils`, "Totalt antall pils registrert for spilleren.")}
             ${playerStat("PR", `${formatNumber(player.pr)} pils`, "Personlig rekord: høyeste antall pils spilleren har registrert på én dag.")}
             ${playerStat("Form", formLabel, "Form viser om spilleren har drukket mer eller mindre de siste 7 dagene sammenlignet med perioden før.")}
-            ${playerStat("TOTW", player.totw, "Antall ganger spilleren har vært på Team of the Week.")}
+            ${playerStat("TOTW", formatNumber(player.totw || 0), "Antall ganger spilleren har vært på Team of the Week.")}
             ${playerStat("League Carry", pct(carry), "Andel av ligaens totale pils som spilleren står for.")}
             ${playerStat("Drikkedager", `${player.drinkingDays} dager`, "Antall dager spilleren har registrert minst én pils.")}
             ${playerStat("Lengste streak", `${player.bestStreak} dager`, "Lengste rekke med drikkedager på rad.")}
