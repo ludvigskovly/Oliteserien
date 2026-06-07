@@ -723,6 +723,13 @@ button:hover {
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
+.legend-guide {
+  fill: none;
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.72;
+}
+
 .date-line {
   stroke: rgba(154, 166, 160, 0.18);
   stroke-width: 1;

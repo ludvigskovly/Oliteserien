@@ -927,13 +927,13 @@ function renderSheetStats(model) {
 
 function renderCumulativeChart(model) {
   const width = 1120;
-  const height = 420;
-  const pad = { top: 24, right: 210, bottom: 70, left: 50 };
+  const height = 520;
+  const pad = { top: 24, right: 260, bottom: 70, left: 50 };
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
   const maxY = Math.max(1, ...model.cumulative.flatMap((day) => day.values));
   const maxX = Math.max(1, model.cumulative.length - 1);
-  const topPlayers = model.league.slice(0, 10).map((player) => player.index);
+  const chartPlayers = model.league.map((player) => player.index);
   const chartDateLabel = (date) => SHORT_DATE.format(date).replace(/\.$/, "");
   const x = (dayIndex) => pad.left + (dayIndex / maxX) * plotWidth;
   const y = (value) => pad.top + plotHeight - (value / maxY) * plotHeight;
@@ -966,7 +966,7 @@ function renderCumulativeChart(model) {
     `;
   }).join("");
 
-  const series = topPlayers.map((playerIndex, seriesIndex) => {
+  const series = chartPlayers.map((playerIndex, seriesIndex) => {
     const points = model.cumulative.map((day, dayIndex) => `${x(dayIndex)},${y(day.values[playerIndex] || 0)}`).join(" ");
     const last = model.cumulative.at(-1);
     const lastValue = last.values[playerIndex] || 0;
@@ -984,7 +984,14 @@ function renderCumulativeChart(model) {
     groupsByTotal.get(key).push(item);
   });
 
-  const labelGroups = Array.from(groupsByTotal.entries())
+  const labelItems = series
+    .map((item) => ({
+      ...item,
+      value: formatNumber(item.lastValue),
+    }))
+    .sort((a, b) => a.naturalY - b.naturalY);
+
+  const valueGroups = Array.from(groupsByTotal.entries())
     .map(([value, members]) => ({
       value,
       members,
@@ -992,31 +999,35 @@ function renderCumulativeChart(model) {
     }))
     .sort((a, b) => a.naturalY - b.naturalY);
 
+  const labelSpacing = 20;
   let nextLabelY = pad.top + 10;
-  labelGroups.forEach((group) => {
-    group.labelY = Math.max(group.naturalY, nextLabelY);
-    nextLabelY = group.labelY + 18;
+  labelItems.forEach((item) => {
+    item.labelY = Math.max(item.naturalY, nextLabelY);
+    nextLabelY = item.labelY + labelSpacing;
   });
-  for (let index = labelGroups.length - 1; index >= 0; index -= 1) {
-    const maxLabelY = pad.top + plotHeight - (labelGroups.length - 1 - index) * 18;
-    if (labelGroups[index].labelY > maxLabelY) labelGroups[index].labelY = maxLabelY;
+  for (let index = labelItems.length - 1; index >= 0; index -= 1) {
+    const maxLabelY = pad.top + plotHeight - (labelItems.length - 1 - index) * labelSpacing;
+    if (labelItems[index].labelY > maxLabelY) labelItems[index].labelY = maxLabelY;
   }
-  const labelYByValue = Object.fromEntries(labelGroups.map((group) => [group.value, group.labelY]));
+  const labelYByValue = Object.fromEntries(valueGroups.map((group) => {
+    const groupLabels = labelItems.filter((item) => item.value === group.value).map((item) => item.labelY);
+    const averageY = groupLabels.reduce((sum, value) => sum + value, 0) / Math.max(1, groupLabels.length);
+    return [group.value, averageY];
+  }));
 
   const paths = series.map((item) => `
     <g class="chart-series" tabindex="0">
       <polyline class="chart-hit-line" points="${item.points}" fill="none" stroke="transparent" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
-      <polyline class="chart-player-line" points="${item.points}" fill="none" stroke="${item.color}" stroke-width="${item.seriesIndex < 4 ? 3 : 1.8}" stroke-linecap="round" stroke-linejoin="round" />
+      <polyline class="chart-player-line" points="${item.points}" fill="none" stroke="${item.color}" stroke-width="${item.seriesIndex < 6 ? 3 : 1.65}" stroke-linecap="round" stroke-linejoin="round" />
       <circle cx="${x(maxX)}" cy="${y(item.lastValue)}" r="3.5" fill="${item.color}" />
       ${renderChartTooltip(item, groupsByTotal.get(formatNumber(item.lastValue)), labelYByValue[formatNumber(item.lastValue)], width, height, pad)}
     </g>
   `).join("");
 
-  const labels = labelGroups.map((group) => {
-    const names = group.members.map((member) => member.playerName).join(" / ");
-    const color = group.members[0].color;
+  const labels = labelItems.map((item) => {
     return `
-      <text x="${width - pad.right + 12}" y="${group.labelY + 4}" class="legend-label" fill="${color}">${escapeHtml(names)} ${group.value}</text>
+      <path d="M ${width - pad.right} ${item.naturalY} L ${width - pad.right + 18} ${item.labelY}" class="legend-guide" stroke="${item.color}" />
+      <text x="${width - pad.right + 24}" y="${item.labelY + 4}" class="legend-label" fill="${item.color}">${escapeHtml(item.playerName)} ${item.value}</text>
     `;
   }).join("");
 
