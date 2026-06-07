@@ -572,6 +572,20 @@ function renderMetric(label, value, className = "") {
   return `<div class="metric ${className}"><span>${label}</span><strong>${value}</strong></div>`;
 }
 
+function renderPerformanceMetric(entry) {
+  if (!entry) return renderMetric("Dagens sterkeste prestasjon", "-", "score-card performance-metric");
+
+  return `
+    <div class="metric score-card performance-metric">
+      <span>Dagens sterkeste prestasjon</span>
+      <div class="metric-player">
+        ${playerAvatar(entry.name, "metric-player-photo")}
+        <strong>${escapeHtml(entry.name)} (${formatNumber(entry.value)} pils)</strong>
+      </div>
+    </div>
+  `;
+}
+
 function playerMeta(name) {
   return PLAYER_META[name] || {};
 }
@@ -594,13 +608,13 @@ function renderBroadcastHero(model) {
   const currentWeek = model.weeks.filter((week) => week.total > 0).at(-1);
   const gap = leader && runnerUp ? leader.total - runnerUp.total : 0;
   const statusText = leader
-    ? `${leader.name} i ledelse${runnerUp ? ` - jaktes av ${runnerUp.name}, ${formatNumber(gap)} pils bak` : ""}.`
+    ? `${leader.name} i ledelse${runnerUp ? `, ${runnerUp.name} ${formatNumber(gap)} pils bak` : ""}.`
     : "Ligaen venter på første registrering.";
 
   $("#metrics").innerHTML = `
     <section class="broadcast-hero">
       <div class="hero-copy">
-        <span class="eyebrow">Øliteserien tabellstatistikk og spillerprestasjoner</span>
+        <span class="eyebrow">Tabellstatistikk og spillerprestasjoner</span>
         <h2>Slaget om sommeren godt i gang.</h2>
         <p>${escapeHtml(statusText)}</p>
       </div>
@@ -615,7 +629,7 @@ function renderBroadcastHero(model) {
       <div class="hero-scoreboard">
         ${renderMetric("Ligatotal", formatNumber(model.totalBeer), "league-total")}
         ${renderMetric("Avstand", leader && runnerUp ? `${formatNumber(gap)} pils` : "-", "score-card")}
-        ${renderMetric("Dagens prestasjon", lastMvp ? `${lastMvp.name} ${formatNumber(lastMvp.value)}` : "-", "score-card")}
+        ${renderPerformanceMetric(lastMvp)}
         ${renderMetric("Ukens pilstotal", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
       </div>
     </section>
