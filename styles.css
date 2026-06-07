@@ -345,6 +345,13 @@ button:hover {
   padding: 9px 11px;
 }
 
+.machine-sheet-card .stat-top-value {
+  background: linear-gradient(135deg, rgba(231, 183, 95, 0.28), rgba(255, 229, 150, 0.5));
+  color: #6b4200;
+  font-weight: 920;
+  box-shadow: inset 4px 0 0 rgba(231, 183, 95, 0.95);
+}
+
 .sheet-card.compact {
   background: var(--sheet-white);
   border-color: var(--sheet-grid);

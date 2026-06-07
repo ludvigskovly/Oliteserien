@@ -19,10 +19,9 @@
         </div>
 
         <nav class="nav" aria-label="Dashboard">
-          <a href="#overview">Oversikt</a>
-          <a href="#players">Spillere</a>
-          <a href="#chart">Graf</a>
-          <a href="#table">Tabell</a>
+          <a href="#overview">Ligatabell</a>
+          <a href="#players">Pilsere</a>
+          <a href="#chart">Trendoversikt</a>
           <a href="#totw">TOTW</a>
           <a href="#stats">Stats</a>
           <a href="#duos">Duos</a>
@@ -58,7 +57,7 @@
 
         <section class="panel players-panel" id="players">
           <div class="panel-head">
-            <h3>Player View</h3>
+            <h3>Pilsere</h3>
           </div>
           <div id="player-view" class="player-carousel"></div>
         </section>
@@ -71,27 +70,7 @@
           <div id="cumulative-chart" class="chart-area"></div>
         </section>
 
-        <section class="grid two">
-          <div class="panel" id="table">
-            <div class="panel-head">
-              <h3>Ligatabell</h3>
-              <span>PR som tiebreaker</span>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Navn</th>
-                    <th>Pils</th>
-                    <th>PR (Personlig Rekord)</th>
-                  </tr>
-                </thead>
-                <tbody id="league-table"></tbody>
-              </table>
-            </div>
-          </div>
-
+        <section class="grid">
           <div class="panel" id="totw">
             <div class="panel-head">
               <h3>Team of the Week</h3>
@@ -189,15 +168,12 @@
         </section>
 
         <section class="panel sheet-stats-panel" id="sheet-stats">
-          <div class="panel-head">
-            <h3>Regnearkstats</h3>
-            <span>Fra arket</span>
-          </div>
           <div id="sheet-stats-content" class="sheet-stats"></div>
         </section>
       </main>
     </div>
 
-    <script src="./app.js?v=29"></script>
+    <!--SHEET_DATA-->
+    <script src="./app.js?v=30"></script>
   </body>
 </html>

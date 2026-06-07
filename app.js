@@ -280,7 +280,6 @@ function buildSheetSections(rows) {
   return [
     {
       title: cell(rows, 172, 5),
-      description: cell(rows, 172, 16),
       items: [
         tableFromColumns(rows, cell(rows, 172, 5), 174, [5, 6, 8, 9, 10, 11, 12], 175, 193),
         {
@@ -605,15 +604,6 @@ function render(model) {
   renderCumulativeChart(model);
   renderSheetStats(model);
 
-  $("#league-table").innerHTML = model.league.map((player, index) => `
-    <tr>
-      <td>${index + 1}.</td>
-      <td><strong>${player.name}</strong></td>
-      <td>${formatNumber(player.total)}</td>
-      <td>${formatNumber(player.pr)}</td>
-    </tr>
-  `).join("");
-
   $("#totw-list").innerHTML = model.weeks.map((week) => `
     <div class="week">
       <div class="week-head">
@@ -739,6 +729,35 @@ function renderMiniTable(table) {
   `;
 }
 
+function numericCellValue(value) {
+  const normalized = text(value).replace(/\s/g, "").replace(",", ".");
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : null;
+}
+
+function isFormColumn(header) {
+  return text(header).trim().toLowerCase() === "form";
+}
+
+function isMaskinratingTable(item) {
+  return item.type === "table" && text(item.title).trim().toUpperCase() === "MASKINRATING";
+}
+
+function maxColumnsForTable(item) {
+  const maxByColumn = item.headers.map(() => null);
+
+  item.rows.forEach((row) => {
+    row.forEach((value, columnIndex) => {
+      if (columnIndex === 0 || isFormColumn(item.headers[columnIndex])) return;
+      const numeric = numericCellValue(value);
+      if (numeric === null) return;
+      maxByColumn[columnIndex] = maxByColumn[columnIndex] === null ? numeric : Math.max(maxByColumn[columnIndex], numeric);
+    });
+  });
+
+  return maxByColumn;
+}
+
 function renderSheetItem(item) {
   if (item.type === "value") {
     return `
@@ -759,8 +778,12 @@ function renderSheetItem(item) {
     `;
   }
 
+  const isMachineTable = isMaskinratingTable(item);
+  const maxByColumn = isMachineTable ? maxColumnsForTable(item) : [];
+  const cardClass = isMachineTable ? " machine-sheet-card" : "";
+
   return `
-    <article class="sheet-card">
+    <article class="sheet-card${cardClass}">
       <h4>${escapeHtml(item.title)}</h4>
       ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
       <div class="table-wrap">
@@ -769,7 +792,16 @@ function renderSheetItem(item) {
             <tr>${item.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
           </thead>
           <tbody>
-            ${item.rows.map((row) => `<tr>${row.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+            ${item.rows.map((row) => `
+              <tr>${row.map((value, columnIndex) => {
+                const numeric = numericCellValue(value);
+                const isTopValue = isMachineTable
+                  && numeric !== null
+                  && maxByColumn[columnIndex] === numeric
+                  && !isFormColumn(item.headers[columnIndex]);
+                return `<td class="${isTopValue ? "stat-top-value" : ""}">${escapeHtml(value)}</td>`;
+              }).join("")}</tr>
+            `).join("")}
           </tbody>
         </table>
       </div>
