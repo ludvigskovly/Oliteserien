@@ -8,6 +8,13 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 const PLAYER_META = {
+  "Aleks": {
+    fullName: "Aleks",
+    nickname: "Aleks",
+    preferredBeer: "Hansa Pilsner",
+    image: "./aleks.jpg",
+    role: "Øliteserien spiller",
+  },
   "Jøgge": {
     fullName: "Jøgge",
     nickname: "Jøgge",
@@ -28,6 +35,62 @@ const PLAYER_META = {
     preferredBeer: "Tuborg Lite Mango Passion",
     image: "./augen.jpg",
     role: "Tabelljeger",
+  },
+  "Knut": {
+    fullName: "Knut",
+    nickname: "Knut",
+    preferredBeer: "Hansa Pilsner",
+    image: "./knut.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Ivar": {
+    fullName: "Ivar",
+    nickname: "Ivar",
+    preferredBeer: "Hansa Pilsner",
+    image: "./ivar.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Siggen": {
+    fullName: "Siggen",
+    nickname: "Siggen",
+    preferredBeer: "Hansa Pilsner",
+    image: "./siggen.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Kal": {
+    fullName: "Kal",
+    nickname: "Kal",
+    preferredBeer: "Hansa Pilsner",
+    image: "./kal.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Hegre": {
+    fullName: "Hegre",
+    nickname: "Hegre",
+    preferredBeer: "Hansa Pilsner",
+    image: "./hegre.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Sindre": {
+    fullName: "Sindre",
+    nickname: "Sindre",
+    preferredBeer: "Schous Pilsner",
+    image: "./sindre.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Nikolai": {
+    fullName: "Nikolai",
+    nickname: "Nikolai",
+    preferredBeer: "Hansa Pilsner",
+    image: "./nikolai.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Madslien": {
+    fullName: "Madslien",
+    nickname: "Madslien",
+    preferredBeer: "Hansa Pilsner",
+    image: "./madslien.jpg",
+    role: "Øliteserien spiller",
   },
   "Espen": {
     fullName: "Espen",

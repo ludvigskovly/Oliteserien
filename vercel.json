@@ -13,11 +13,20 @@
     { "src": "elling.jpg", "use": "@vercel/static" },
     { "src": "ludde.jpg", "use": "@vercel/static" },
     { "src": "tage.jpg", "use": "@vercel/static" },
-    { "src": "alf.jpg", "use": "@vercel/static" }
+    { "src": "alf.jpg", "use": "@vercel/static" },
+    { "src": "knut.jpg", "use": "@vercel/static" },
+    { "src": "aleks.jpg", "use": "@vercel/static" },
+    { "src": "ivar.jpg", "use": "@vercel/static" },
+    { "src": "siggen.jpg", "use": "@vercel/static" },
+    { "src": "kal.jpg", "use": "@vercel/static" },
+    { "src": "hegre.jpg", "use": "@vercel/static" },
+    { "src": "sindre.jpg", "use": "@vercel/static" },
+    { "src": "nikolai.jpg", "use": "@vercel/static" },
+    { "src": "madslien.jpg", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/sheet", "dest": "/api/sheet.js" },
-    { "src": "/(app\\.js|styles\\.css|crest\\.svg|jogge\\.jpg|stegane\\.jpg|augen\\.jpg|espen\\.jpg|elling\\.jpg|ludde\\.jpg|tage\\.jpg|alf\\.jpg)", "dest": "/$1" },
+    { "src": "/(app\\.js|styles\\.css|crest\\.svg|jogge\\.jpg|stegane\\.jpg|augen\\.jpg|espen\\.jpg|elling\\.jpg|ludde\\.jpg|tage\\.jpg|alf\\.jpg|knut\\.jpg|aleks\\.jpg|ivar\\.jpg|siggen\\.jpg|kal\\.jpg|hegre\\.jpg|sindre\\.jpg|nikolai\\.jpg|madslien\\.jpg)", "dest": "/$1" },
     { "src": "/.*", "dest": "/index.html" }
   ],
   "headers": [
