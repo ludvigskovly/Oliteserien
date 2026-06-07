@@ -744,7 +744,12 @@ function render(model) {
 }
 
 function renderPlayers(model) {
-  const maxTotal = Math.max(1, ...model.league.map((player) => player.total));
+  const machineRatings = model.league
+    .map((player) => player.machineRating)
+    .filter((rating) => Number.isFinite(rating));
+  const minMachineRating = machineRatings.length ? Math.min(...machineRatings) : 0;
+  const maxMachineRating = machineRatings.length ? Math.max(...machineRatings) : 0;
+  const machineRatingRange = Math.max(1, maxMachineRating - minMachineRating);
   $("#player-view").innerHTML = model.league.map((player, rankIndex) => {
     const meta = playerMeta(player.name);
     const displayName = meta.fullName || player.name;
@@ -755,6 +760,9 @@ function renderPlayers(model) {
     const image = meta.image
       ? `<img class="player-photo" src="${meta.image}" alt="${displayName}" />`
       : `<div class="player-initials">${initials}</div>`;
+    const meterPercent = Number.isFinite(player.machineRating)
+      ? ((player.machineRating - minMachineRating) / machineRatingRange) * 100
+      : 0;
 
     return `
       <article class="player-card">
@@ -767,7 +775,7 @@ function renderPlayers(model) {
           <h3>${displayName}</h3>
           <p class="player-alias">${nickname}${meta.preferredBeer ? ` · ${meta.preferredBeer}` : ""}</p>
           <div class="player-meter">
-            <span style="width:${Math.max(4, (player.total / maxTotal) * 100)}%"></span>
+            <span style="width:${meterPercent}%"></span>
           </div>
           <div class="player-stats">
             ${playerStat("Maskinrating", player.machineRating != null ? `${formatNumber(player.machineRating)} OVR` : "-", "Sammensatt rating fra regnearket basert på total, snitt, PR, TOTW og form.", "machine-rating")}
