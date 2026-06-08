@@ -10,10 +10,17 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const PLAYER_META = {
   "Aleks": {
-    fullName: "Aleks",
-    nickname: "Aleks",
+    fullName: "Andreas",
+    nickname: "Andreas",
     preferredBeer: "Hansa Pilsner",
-    image: "./aleks.jpg",
+    image: "./andreas.jpg",
+    role: "Øliteserien spiller",
+  },
+  "Andreas": {
+    fullName: "Andreas",
+    nickname: "Andreas",
+    preferredBeer: "Hansa Pilsner",
+    image: "./andreas.jpg",
     role: "Øliteserien spiller",
   },
   "Jøgge": {
@@ -595,7 +602,7 @@ function renderPerformanceMetric(entry) {
       <span>Dagens sterkeste prestasjon</span>
       <div class="metric-player">
         ${playerAvatar(entry.name, "metric-player-photo")}
-        <strong>${escapeHtml(entry.name)} (${formatNumber(entry.value)} pils)</strong>
+        <strong>${escapeHtml(displayPlayerName(entry.name))} (${formatNumber(entry.value)} pils)</strong>
       </div>
     </div>
   `;
@@ -615,7 +622,7 @@ function renderHeroTotwMetric(model) {
         ${week.entries.slice(0, 3).map((entry) => `
           <div class="hero-totw-player">
             ${playerAvatar(entry.name, "hero-totw-photo")}
-            <strong>${escapeHtml(entry.name)}</strong>
+            <strong>${escapeHtml(displayPlayerName(entry.name))}</strong>
             <small>${formatNumber(entry.total)} pils</small>
           </div>
         `).join("")}
@@ -626,6 +633,10 @@ function renderHeroTotwMetric(model) {
 
 function playerMeta(name) {
   return PLAYER_META[name] || {};
+}
+
+function displayPlayerName(name) {
+  return playerMeta(name).fullName || name;
 }
 
 function normalizedName(value) {
@@ -688,7 +699,7 @@ function playerAvatar(name, className = "avatar") {
   const meta = playerMeta(name);
   const label = escapeHtml(meta.fullName || name);
   if (meta.image) return `<img class="${className}" src="${meta.image}" alt="${label}" />`;
-  return `<span class="${className} avatar-fallback">${escapeHtml(name.slice(0, 2).toUpperCase())}</span>`;
+  return `<span class="${className} avatar-fallback">${escapeHtml(displayPlayerName(name).slice(0, 2).toUpperCase())}</span>`;
 }
 
 function renderBroadcastHero(model) {
@@ -703,7 +714,7 @@ function renderBroadcastHero(model) {
   const currentWeek = model.weeks.filter((week) => week.total > 0).at(-1);
   const gap = leader && runnerUp ? leader.total - runnerUp.total : 0;
   const statusText = leader
-    ? `${leader.name} i ledelse${runnerUp ? `, ${runnerUp.name} ${formatNumber(gap)} pils bak` : ""}.`
+    ? `${displayPlayerName(leader.name)} i ledelse${runnerUp ? `, ${displayPlayerName(runnerUp.name)} ${formatNumber(gap)} pils bak` : ""}.`
     : "Ligaen venter på første registrering.";
 
   $("#metrics").innerHTML = `
@@ -718,7 +729,7 @@ function renderBroadcastHero(model) {
           ${leader ? playerAvatar(leader.name, "hero-leader-photo") : ""}
           <div>
             <span>Ligaleder</span>
-            <strong>${leader ? escapeHtml(leader.name) : "-"}</strong>
+            <strong>${leader ? escapeHtml(displayPlayerName(leader.name)) : "-"}</strong>
             <small>${leader ? `${formatNumber(leader.total)} pils · PR ${formatNumber(leader.pr)}` : "Ingen leder enda"}</small>
           </div>
         </div>
@@ -726,7 +737,7 @@ function renderBroadcastHero(model) {
           ${oddsFavorite ? playerAvatar(oddsFavorite.name, "hero-leader-photo") : ""}
           <div>
             <span>Oddsfavoritt</span>
-            <strong>${oddsFavorite ? escapeHtml(oddsFavorite.name) : "-"}</strong>
+            <strong>${oddsFavorite ? escapeHtml(displayPlayerName(oddsFavorite.name)) : "-"}</strong>
             <small>${oddsFavorite?.odds ? `${escapeHtml(oddsFavorite.odds)} odds` : "Odds ikke tilgjengelig"}</small>
           </div>
         </div>
@@ -747,7 +758,7 @@ function renderRank(items, target, valueKey, formatter = (value) => value) {
     <div class="rank">
       <span class="rank-badge">${index + 1}</span>
       <div>
-        <b>${item.name}</b>
+        <b>${displayPlayerName(item.name)}</b>
         <small>${index === 0 ? "Leder racet" : `${formatNumber(max - item[valueKey])} bak lederen`}</small>
       </div>
       <strong>${formatter(item[valueKey], item)}</strong>
@@ -817,7 +828,7 @@ function renderTotw(model) {
                   <span class="totw-medal">#${entryIndex + 1}</span>
                   ${playerAvatar(entry.name, "totw-feature-photo")}
                   <div>
-                    <strong>${escapeHtml(entry.name)}</strong>
+                    <strong>${escapeHtml(displayPlayerName(entry.name))}</strong>
                     <span>Ukestotal: ${formatNumber(entry.total)} pils</span>
                     <small>Sterkeste enkeltdag: ${formatNumber(entry.pr)} pils</small>
                   </div>
@@ -861,7 +872,7 @@ function renderXpList(model) {
     <article class="xp-card">
       <span class="rank-badge">${index + 1}</span>
       <div>
-        <strong>${escapeHtml(item.name)}</strong>
+        <strong>${escapeHtml(displayPlayerName(item.name))}</strong>
       </div>
       <b>${item.xp.toFixed(2)} <small>pils</small></b>
     </article>
@@ -878,7 +889,7 @@ function renderStreakList(model) {
       <span class="rank-badge">${index + 1}</span>
       ${playerAvatar(player.name, "streak-avatar")}
       <div>
-        <strong>${escapeHtml(player.name)}</strong>
+        <strong>${escapeHtml(displayPlayerName(player.name))}</strong>
       </div>
       <div class="streak-metrics">
         <div>
@@ -903,8 +914,8 @@ function renderDuoList(model) {
         ${playerAvatar(duo.broder2, "duo-avatar")}
       </div>
       <div class="duo-names">
-        <strong>${escapeHtml(duo.broder1)}</strong>
-        <span>${escapeHtml(duo.broder2)}</span>
+        <strong>${escapeHtml(displayPlayerName(duo.broder1))}</strong>
+        <span>${escapeHtml(displayPlayerName(duo.broder2))}</span>
       </div>
       <div class="duo-metric">
         <div>
@@ -933,7 +944,7 @@ function renderPlayers(model) {
     const nickname = meta.nickname || player.name;
     const carry = player.total / Math.max(1, model.totalBeer);
     const formLabel = player.formRatio >= 1.5 ? "Sterk" : player.formRatio >= 1 ? "Stabil" : player.formRatio > 0 ? "Rolig" : "Ukjent";
-    const initials = player.name.slice(0, 2).toUpperCase();
+    const initials = displayName.slice(0, 2).toUpperCase();
     const image = meta.image
       ? `<img class="player-photo" src="${meta.image}" alt="${displayName}" />`
       : `<div class="player-initials">${initials}</div>`;
@@ -1004,7 +1015,7 @@ function renderMiniTable(table) {
             <tr>${table.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
           </thead>
           <tbody>
-            ${table.rows.map((row, index) => `<tr class="${index < 3 ? `podium podium-${index + 1}` : ""}">${row.map((value, columnIndex) => `<td>${columnIndex === 1 ? playerAvatar(value, "table-avatar") : ""}${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+            ${table.rows.map((row, index) => `<tr class="${index < 3 ? `podium podium-${index + 1}` : ""}">${row.map((value, columnIndex) => `<td>${columnIndex === 1 ? playerAvatar(value, "table-avatar") : ""}${escapeHtml(columnIndex === 1 ? displayPlayerName(value) : value)}</td>`).join("")}</tr>`).join("")}
           </tbody>
         </table>
       </div>
@@ -1082,7 +1093,8 @@ function renderSheetItem(item) {
                   && numeric !== null
                   && maxByColumn[columnIndex] === numeric
                   && !isFormColumn(item.headers[columnIndex]);
-                return `<td class="${isTopValue ? "stat-top-value" : ""}">${escapeHtml(value)}</td>`;
+                const displayValue = PLAYER_META[value] ? displayPlayerName(value) : value;
+                return `<td class="${isTopValue ? "stat-top-value" : ""}">${escapeHtml(displayValue)}</td>`;
               }).join("")}</tr>
             `).join("")}
           </tbody>
@@ -1115,7 +1127,7 @@ function renderMachineRating(model) {
     <article class="machine-row">
       <div class="machine-player">
         ${playerAvatar(row[0], "machine-avatar")}
-        <strong>${escapeHtml(row[0])}</strong>
+        <strong>${escapeHtml(displayPlayerName(row[0]))}</strong>
       </div>
       ${row.slice(1).map((value, index) => {
         const columnIndex = index + 1;
@@ -1173,7 +1185,7 @@ function renderAwards(model) {
                 <div class="award-winner">
                   ${playerAvatar(winner[0], "award-avatar")}
                   <div>
-                    <strong>${escapeHtml(winner[0])}</strong>
+                    <strong>${escapeHtml(displayPlayerName(winner[0]))}</strong>
                     <small>${escapeHtml(winner.slice(1).filter(Boolean).join(" · "))}</small>
                   </div>
                 </div>
@@ -1183,7 +1195,7 @@ function renderAwards(model) {
               ${topRows.map((row, index) => `
                 <div>
                   <span>${index + 1}</span>
-                  <strong>${escapeHtml(row[0])}</strong>
+                  <strong>${escapeHtml(displayPlayerName(row[0]))}</strong>
                   <b>${escapeHtml(row.slice(1).filter(Boolean).join(" · "))}</b>
                 </div>
               `).join("")}
@@ -1207,7 +1219,7 @@ function renderOdds(model) {
           <span class="rank-badge">${index + 1}</span>
           ${playerAvatar(entry.name, "odds-avatar")}
           <div class="odds-player">
-            <strong>${escapeHtml(entry.name)}</strong>
+            <strong>${escapeHtml(displayPlayerName(entry.name))}</strong>
             ${entry.extra ? `<small>${escapeHtml(entry.extra)}</small>` : ""}
           </div>
           <div class="odds-price">
@@ -1289,8 +1301,9 @@ function renderCumulativeChart(model) {
     const points = model.cumulative.map((day, dayIndex) => `${x(dayIndex)},${y(day.values[playerIndex] || 0)}`).join(" ");
     const last = model.cumulative.at(-1);
     const lastValue = last.values[playerIndex] || 0;
-    const playerName = model.names[playerIndex];
-    const meta = playerMeta(playerName);
+    const rawPlayerName = model.names[playerIndex];
+    const playerName = displayPlayerName(rawPlayerName);
+    const meta = playerMeta(rawPlayerName);
     const imageHref = meta.image || "";
     const color = COLORS[seriesIndex % COLORS.length];
     return { playerIndex, seriesIndex, points, lastValue, playerName, imageHref, color, naturalY: y(lastValue) };
