@@ -580,8 +580,11 @@ function addDays(date, days) {
   return next;
 }
 
-function renderMetric(label, value, className = "") {
-  return `<div class="metric ${className}"><span>${label}</span><strong>${value}</strong></div>`;
+function renderMetric(label, value, className = "", unit = "") {
+  const valueMarkup = unit
+    ? `<strong><span class="metric-number">${escapeHtml(value)}</span> <small class="metric-unit">${escapeHtml(unit)}</small></strong>`
+    : `<strong>${escapeHtml(value)}</strong>`;
+  return `<div class="metric ${className}"><span>${escapeHtml(label)}</span>${valueMarkup}</div>`;
 }
 
 function renderPerformanceMetric(entry) {
@@ -625,6 +628,62 @@ function playerMeta(name) {
   return PLAYER_META[name] || {};
 }
 
+function normalizedName(value) {
+  return text(value).toLowerCase();
+}
+
+function findSection(model, matcher) {
+  return model.sheetSections.find((section) => matcher(normalizedName(section.title)));
+}
+
+function findTable(model, matcher) {
+  for (const section of model.sheetSections) {
+    const item = section.items.find((entry) => entry.type === "table" && matcher(normalizedName(entry.title), section));
+    if (item) return item;
+  }
+  return null;
+}
+
+function findMachineSection(model) {
+  return findSection(model, (title) => title.includes("maskinrating"));
+}
+
+function findMachineTable(model) {
+  return findTable(model, (title) => title === "maskinrating");
+}
+
+function findOddsSection(model) {
+  return findSection(model, (title) => title.includes("odds"));
+}
+
+function findOddsTable(model) {
+  const section = findOddsSection(model);
+  return section?.items.find((item) => item.type === "table") || null;
+}
+
+function isInvalidSheetValue(value) {
+  const lower = normalizedName(value);
+  return !lower || lower === "#n/a" || lower === "n/a" || lower === "#value!" || lower === "#div/0!";
+}
+
+function oddsEntries(model) {
+  const table = findOddsTable(model);
+  if (!table) return [];
+  const names = new Set(model.names.map(normalizedName));
+
+  return table.rows.map((row) => {
+    const name = row.find((value) => names.has(normalizedName(value))) || row[0];
+    const odds = row.find((value) => !isInvalidSheetValue(value) && normalizedName(value) !== normalizedName(name) && /[:/0-9]/.test(String(value))) || "";
+    const extra = row.find((value) => !isInvalidSheetValue(value) && value !== name && value !== odds) || "";
+    return { name, odds, extra, row };
+  }).filter((entry) => entry.name && model.names.some((name) => normalizedName(name) === normalizedName(entry.name)));
+}
+
+function playerOdds(model, name) {
+  const entry = oddsEntries(model).find((item) => normalizedName(item.name) === normalizedName(name));
+  return entry?.odds || "-";
+}
+
 function playerAvatar(name, className = "avatar") {
   const meta = playerMeta(name);
   const label = escapeHtml(meta.fullName || name);
@@ -640,6 +699,7 @@ function renderBroadcastHero(model) {
     ? model.names.map((name, index) => ({ name, value: latest.values[index] || 0 })).filter((entry) => entry.value > 0).sort((a, b) => b.value - a.value)
     : [];
   const lastMvp = latestEntries[0];
+  const oddsFavorite = oddsEntries(model).find((entry) => entry.odds);
   const currentWeek = model.weeks.filter((week) => week.total > 0).at(-1);
   const gap = leader && runnerUp ? leader.total - runnerUp.total : 0;
   const statusText = leader
@@ -653,19 +713,29 @@ function renderBroadcastHero(model) {
         <h2>Slaget om sommeren godt i gang.</h2>
         <p>${escapeHtml(statusText)}</p>
       </div>
-      <div class="hero-leader-card">
-        ${leader ? playerAvatar(leader.name, "hero-leader-photo") : ""}
-        <div>
-          <span>Leder</span>
-          <strong>${leader ? escapeHtml(leader.name) : "-"}</strong>
-          <small>${leader ? `${formatNumber(leader.total)} pils · PR ${formatNumber(leader.pr)}` : "Ingen leder enda"}</small>
+      <div class="hero-feature-stack">
+        <div class="hero-leader-card">
+          ${leader ? playerAvatar(leader.name, "hero-leader-photo") : ""}
+          <div>
+            <span>Ligaleder</span>
+            <strong>${leader ? escapeHtml(leader.name) : "-"}</strong>
+            <small>${leader ? `${formatNumber(leader.total)} pils · PR ${formatNumber(leader.pr)}` : "Ingen leder enda"}</small>
+          </div>
+        </div>
+        <div class="hero-leader-card hero-odds-card">
+          ${oddsFavorite ? playerAvatar(oddsFavorite.name, "hero-leader-photo") : ""}
+          <div>
+            <span>Oddsfavoritt</span>
+            <strong>${oddsFavorite ? escapeHtml(oddsFavorite.name) : "-"}</strong>
+            <small>${oddsFavorite?.odds ? `${escapeHtml(oddsFavorite.odds)} odds` : "Odds ikke tilgjengelig"}</small>
+          </div>
         </div>
       </div>
       <div class="hero-scoreboard">
-        ${renderMetric("Ligatotal", formatNumber(model.totalBeer), "league-total")}
+        ${renderMetric("Total Beer Count (ØLITESERIEN)", formatNumber(model.totalBeer), "league-total", "pils")}
         ${renderHeroTotwMetric(model)}
         ${renderPerformanceMetric(lastMvp)}
-        ${renderMetric("Ukens pilstotal", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card")}
+        ${renderMetric("Ukens pilstotal", currentWeek ? formatNumber(currentWeek.total) : "-", "score-card week-total", "pils")}
       </div>
     </section>
   `;
@@ -696,8 +766,7 @@ function playerStat(label, value, description, className = "") {
 }
 
 function render(model) {
-  $("#source").textContent = state.source;
-  $("#updated").textContent = `Oppdatert ${new Date().toLocaleTimeString("no-NO", { hour: "2-digit", minute: "2-digit" })}`;
+  $("#updated").textContent = `${new Date().toLocaleTimeString("no-NO", { hour: "2-digit", minute: "2-digit" })}, ${DATE_FORMAT.format(new Date())}`;
   $("#range").textContent = `${DATE_FORMAT.format(model.days[0].date)} - ${DATE_FORMAT.format(model.days.at(-1).date)}`;
 
   renderBroadcastHero(model);
@@ -705,27 +774,15 @@ function render(model) {
   renderMarket(model);
   renderPlayers(model);
   renderCumulativeChart(model);
-  renderSheetStats(model);
+  renderMachineRating(model);
+  renderAwards(model);
+  renderOdds(model);
+  renderBottomSheetStats(model);
   renderTotw(model);
 
   renderXpList(model);
   renderStreakList(model);
   renderDuoList(model);
-
-  const dayTotals = model.activeDays.map((day) => ({ date: day.date, total: sum(day.values), drinkers: day.values.filter((value) => value > 0).length }));
-  const bestDay = dayTotals.slice().sort((a, b) => b.total - a.total)[0];
-  const worstDay = dayTotals.slice().sort((a, b) => a.total - b.total)[0];
-  const bestWeek = model.weeks.slice().filter((week) => week.total > 0).sort((a, b) => b.total - a.total)[0];
-  const worstWeek = model.weeks.slice().filter((week) => week.total > 0).sort((a, b) => a.total - b.total)[0];
-
-  $("#league-stats").innerHTML = [
-    ["Beste dag", bestDay ? `${DATE_FORMAT.format(bestDay.date)} (${bestDay.total})` : "-"],
-    ["Verste dag", worstDay ? `${DATE_FORMAT.format(worstDay.date)} (${worstDay.total})` : "-"],
-    ["Beste uke", bestWeek ? `${SHORT_DATE.format(bestWeek.start)} - ${SHORT_DATE.format(bestWeek.end)} (${formatNumber(bestWeek.total)})` : "-"],
-    ["Verste uke", worstWeek ? `${SHORT_DATE.format(worstWeek.start)} - ${SHORT_DATE.format(worstWeek.end)} (${formatNumber(worstWeek.total)})` : "-"],
-    ["Mest aktive dag", bestDay ? `${DATE_FORMAT.format(dayTotals.slice().sort((a, b) => b.drinkers - a.drinkers || b.total - a.total)[0].date)} (${dayTotals.slice().sort((a, b) => b.drinkers - a.drinkers || b.total - a.total)[0].drinkers})` : "-"],
-    ["Snitt per aktiv dag", formatNumber(model.totalBeer / Math.max(1, dayTotals.filter((day) => day.total > 0).length))],
-  ].map(([label, value]) => `<div class="stat-line"><span>${label}</span><strong>${value}</strong></div>`).join("");
 }
 
 function renderTotw(model) {
@@ -806,7 +863,7 @@ function renderXpList(model) {
       <div>
         <strong>${escapeHtml(item.name)}</strong>
       </div>
-      <b>${item.xp.toFixed(2)}</b>
+      <b>${item.xp.toFixed(2)} <small>pils</small></b>
     </article>
   `).join("");
 }
@@ -891,7 +948,6 @@ function renderPlayers(model) {
           <div class="player-rank rank-${rankIndex + 1}">#${rankIndex + 1}</div>
         </div>
         <div class="player-body">
-          <div class="player-kicker">${meta.role || "Øliteserien spiller"}</div>
           <h3>${displayName}</h3>
           <p class="player-alias">${nickname}${meta.preferredBeer ? ` · ${meta.preferredBeer}` : ""}</p>
           <div class="player-meter">
@@ -907,6 +963,7 @@ function renderPlayers(model) {
             ${playerStat("Drikkedager", `${player.drinkingDays} dager`, "Antall dager spilleren har registrert minst én pils.")}
             ${playerStat("Lengste streak", `${player.bestStreak} dager`, "Lengste rekke med drikkedager på rad.")}
             ${playerStat("Snitt", `${formatNumber(player.average)} pils`, "Gjennomsnittlig antall pils på dagene spilleren faktisk har drukket.")}
+            ${playerStat("Odds", playerOdds(model, player.name), "Spillerens odds fra odds-tabellen i regnearket.", "odds-stat")}
           </div>
         </div>
       </article>
@@ -1035,11 +1092,145 @@ function renderSheetItem(item) {
   `;
 }
 
-function renderSheetStats(model) {
-  const target = $("#sheet-stats-content");
+function machineRows(model) {
+  const table = findMachineTable(model);
+  if (!table) return { headers: [], rows: [] };
+  return { headers: table.headers, rows: table.rows };
+}
+
+function renderMachineRating(model) {
+  const target = $("#machine-rating-content");
   if (!target) return;
 
-  target.innerHTML = model.sheetSections.map((section) => `
+  const section = findMachineSection(model);
+  const table = findMachineTable(model);
+  const notes = section?.items.find((item) => item.type === "notes");
+  if (!table) {
+    target.innerHTML = `<p class="stat-description">Maskinrating mangler i arket.</p>`;
+    return;
+  }
+
+  const maxByColumn = maxColumnsForTable(table);
+  const rows = table.rows.map((row) => `
+    <article class="machine-row">
+      <div class="machine-player">
+        ${playerAvatar(row[0], "machine-avatar")}
+        <strong>${escapeHtml(row[0])}</strong>
+      </div>
+      ${row.slice(1).map((value, index) => {
+        const columnIndex = index + 1;
+        const numeric = numericCellValue(value);
+        const isTopValue = numeric !== null && maxByColumn[columnIndex] === numeric && !isFormColumn(table.headers[columnIndex]);
+        return `
+          <div class="machine-cell ${isTopValue ? "is-top" : ""}">
+            <span>${escapeHtml(table.headers[columnIndex] || "")}</span>
+            <b>${escapeHtml(value)}</b>
+          </div>
+        `;
+      }).join("")}
+    </article>
+  `).join("");
+
+  target.innerHTML = `
+    <div class="machine-board">${rows}</div>
+    ${notes ? `
+      <div class="machine-explainer">
+        <h4>${escapeHtml(notes.title || "Maskinrating forklart")}</h4>
+        ${notes.notes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+      </div>
+    ` : ""}
+  `;
+}
+
+function awardClass(title) {
+  const lower = normalizedName(title);
+  if (lower.includes("alcoholic")) return "jersey-green";
+  if (lower.includes("sleep")) return "jersey-blue";
+  if (lower.includes("clutch")) return "jersey-gold";
+  if (lower.includes("tap")) return "jersey-rose";
+  return "jersey-dark";
+}
+
+function renderAwards(model) {
+  const target = $("#awards-content");
+  if (!target) return;
+  const section = findSection(model, (title) => title.includes("award") || title.includes("ledertrø") || title.includes("trø"));
+  const awardTables = section?.items.filter((item) => item.type === "table") || [];
+
+  target.innerHTML = `
+    <div class="award-grid">
+      ${awardTables.map((item) => {
+        const winner = item.rows[0];
+        const topRows = item.rows.slice(0, 3);
+        return `
+          <article class="award-card ${awardClass(item.title)}">
+            <div class="award-jersey">▾</div>
+            <div class="award-main">
+              <span>Ledertrøye</span>
+              <h4>${escapeHtml(item.title)}</h4>
+              ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
+              ${winner ? `
+                <div class="award-winner">
+                  ${playerAvatar(winner[0], "award-avatar")}
+                  <div>
+                    <strong>${escapeHtml(winner[0])}</strong>
+                    <small>${escapeHtml(winner.slice(1).filter(Boolean).join(" · "))}</small>
+                  </div>
+                </div>
+              ` : ""}
+            </div>
+            <div class="award-podium">
+              ${topRows.map((row, index) => `
+                <div>
+                  <span>${index + 1}</span>
+                  <strong>${escapeHtml(row[0])}</strong>
+                  <b>${escapeHtml(row.slice(1).filter(Boolean).join(" · "))}</b>
+                </div>
+              `).join("")}
+            </div>
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderOdds(model) {
+  const target = $("#odds-content");
+  if (!target) return;
+  const entries = oddsEntries(model);
+
+  target.innerHTML = `
+    <div class="odds-board">
+      ${entries.map((entry, index) => `
+        <article class="odds-ticket ${index === 0 ? "is-favorite" : ""}">
+          <span class="rank-badge">${index + 1}</span>
+          ${playerAvatar(entry.name, "odds-avatar")}
+          <div class="odds-player">
+            <strong>${escapeHtml(entry.name)}</strong>
+            ${entry.extra ? `<small>${escapeHtml(entry.extra)}</small>` : ""}
+          </div>
+          <div class="odds-price">
+            <span>Odds</span>
+            <b>${escapeHtml(entry.odds || "-")}</b>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function isBottomSheetSection(section) {
+  const title = normalizedName(section.title);
+  return title.includes("league stats") || title.includes("preseason") || title.includes("power ranking");
+}
+
+function renderBottomSheetStats(model) {
+  const target = $("#sheet-stats-content");
+  if (!target) return;
+  const sections = model.sheetSections.filter(isBottomSheetSection);
+
+  target.innerHTML = sections.map((section) => `
     <section class="sheet-section">
       <div class="sheet-section-head">
         <h3>${escapeHtml(section.title)}</h3>

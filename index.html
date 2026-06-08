@@ -23,14 +23,14 @@
           <a href="#players">Pilsere</a>
           <a href="#chart">Trendoversikt</a>
           <a href="#totw">TOTW</a>
-          <a href="#stats">Award Races</a>
+          <a href="#stats">Stats</a>
           <a href="#duos">Duos</a>
+          <a href="#odds">Odds</a>
         </nav>
 
         <div class="source-panel">
-          <span class="label">Datakilde</span>
-          <strong id="source">Laster...</strong>
-          <small id="updated">-</small>
+          <span class="label">Siste endring</span>
+          <strong id="updated">-</strong>
         </div>
       </aside>
 
@@ -111,22 +111,42 @@
             <div id="duo-table" class="duo-list"></div>
           </div>
 
-          <div class="panel">
+          <div class="panel machine-panel" id="maskinrating">
             <div class="panel-head">
-              <h3>League Stats</h3>
-              <span>Sesongrekorder</span>
+              <h3>Maskinrating</h3>
+              <span>Fra arket</span>
             </div>
-            <div id="league-stats" class="stat-stack"></div>
+            <div id="machine-rating-content"></div>
           </div>
         </section>
 
+        <section class="panel awards-panel" id="awards">
+          <div class="panel-head">
+            <h3>Ledertrøyer</h3>
+            <span>Sesongens spesialtrøyer</span>
+          </div>
+          <div id="awards-content"></div>
+        </section>
+
+        <section class="panel odds-panel" id="odds">
+          <div class="panel-head">
+            <h3>Odds</h3>
+            <span>Bookmaker-tabell</span>
+          </div>
+          <div id="odds-content"></div>
+        </section>
+
         <section class="panel sheet-stats-panel" id="sheet-stats">
+          <div class="panel-head">
+            <h3>League Stats</h3>
+            <span>Flyttet nederst</span>
+          </div>
           <div id="sheet-stats-content" class="sheet-stats"></div>
         </section>
       </main>
     </div>
 
     <!--SHEET_DATA-->
-    <script src="./app.js?v=32"></script>
+    <script src="./app.js?v=33"></script>
   </body>
 </html>
