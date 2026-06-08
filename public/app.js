@@ -803,8 +803,7 @@ function renderXpList(model) {
 function renderStreakList(model) {
   const streaks = model.totals
     .slice()
-    .sort((a, b) => b.bestStreak - a.bestStreak || b.drinkingDays - a.drinkingDays || b.total - a.total)
-    .slice(0, 6);
+    .sort((a, b) => b.bestStreak - a.bestStreak || b.streak - a.streak || b.drinkingDays - a.drinkingDays || b.total - a.total);
 
   $("#streak-list").innerHTML = streaks.map((player, index) => `
     <article class="streak-card">
@@ -812,9 +811,17 @@ function renderStreakList(model) {
       ${playerAvatar(player.name, "streak-avatar")}
       <div>
         <strong>${escapeHtml(player.name)}</strong>
-        <small>Nåværende streak: ${formatNumber(player.streak)} dager</small>
       </div>
-      <b>${formatNumber(player.bestStreak)} dager</b>
+      <div class="streak-metrics">
+        <div>
+          <small>Lengste Streak</small>
+          <b>${formatNumber(player.bestStreak)} dager</b>
+        </div>
+        <div>
+          <small>Nåværende Streak</small>
+          <b>${formatNumber(player.streak)} dager</b>
+        </div>
+      </div>
     </article>
   `).join("");
 }
