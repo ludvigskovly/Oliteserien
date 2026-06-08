@@ -81,82 +81,33 @@
           </div>
         </section>
 
-        <section class="grid three" id="stats">
-          <div class="panel">
+        <section class="grid two stats-showcase" id="stats">
+          <div class="panel xp-panel">
             <div class="panel-head">
-              <h3>The Alcoholic</h3>
-              <span>Availability award</span>
-            </div>
-            <p class="stat-description">Rangerer etter hvor mange dager personen har registrert minst én pils til og med i dag.</p>
-            <div id="drinking-days" class="rank-list"></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <h3>Sleep Merchant</h3>
-              <span>Benken award</span>
-            </div>
-            <p class="stat-description">Motsatsen til The Alcoholic: dager uten registrert pils til og med i dag.</p>
-            <div id="sleep-days" class="rank-list"></div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <h3>xP</h3>
+              <h3>Expected Pils (xP)</h3>
               <span>Forventet pils</span>
             </div>
-            <p class="stat-description">Anslår forventet pils basert på personens egen ukedagshistorikk og form.</p>
-            <div id="xp-list" class="rank-list"></div>
-          </div>
-        </section>
-
-        <section class="grid three">
-          <div class="panel">
-            <div class="panel-head">
-              <h3>PR</h3>
-              <span>Beste enkeltdag</span>
-            </div>
-            <p class="stat-description">Personlig rekord: høyeste antall pils registrert på én dag.</p>
-            <div id="pr-list" class="rank-list"></div>
+            <p class="stat-description">Anslår forventet pils basert på personens egen ukedagshistorikk og form. xP er et estimat for hva spilleren kan forventes å drikke på neste relevante dag.</p>
+            <div id="xp-list" class="xp-list"></div>
           </div>
 
-          <div class="panel">
-            <div class="panel-head">
-              <h3>League Carry</h3>
-              <span>Franchise player-index</span>
-            </div>
-            <p class="stat-description">Hvor stor andel av ligaens totale pils hver person står for.</p>
-            <div id="carry-list" class="rank-list"></div>
-          </div>
-
-          <div class="panel">
+          <div class="panel streak-panel">
             <div class="panel-head">
               <h3>Hot Streaks</h3>
-              <span>Formkurve</span>
+              <span>Drikkedager på rad</span>
             </div>
             <p class="stat-description">Lengste rekke med drikkedager, med nåværende streak vist etter skråstreken.</p>
-            <div id="streak-list" class="rank-list"></div>
+            <div id="streak-list" class="streak-list"></div>
           </div>
         </section>
 
-        <section class="grid two">
+        <section class="grid two stats-showcase">
           <div class="panel" id="duos">
             <div class="panel-head">
               <h3>Dynamic Duos</h3>
-              <span>Beste kjemi i ligaen</span>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Broder 1</th>
-                    <th>Broder 2</th>
-                    <th>Dager</th>
-                  </tr>
-                </thead>
-                <tbody id="duo-table"></tbody>
-              </table>
-            </div>
+            <p class="stat-description">De 10 duoene som har drukket på samme dag flest ganger. Ved uavgjort er det duoen som totalt har drukket mest pils sammen som står øverst. "Broder 1" er personen i duoen som totalt har drukket flest pils på duoens felles drikkedager.</p>
+            <div id="duo-table" class="duo-list"></div>
           </div>
 
           <div class="panel">

@@ -696,20 +696,9 @@ function render(model) {
   renderSheetStats(model);
   renderTotw(model);
 
-  renderRank(model.totals.slice().sort((a, b) => b.drinkingDays - a.drinkingDays || b.total - a.total), "#drinking-days", "drinkingDays", (value, item) => `${value} (${pct(value / Math.max(1, model.activeDays.length))})`);
-  renderRank(model.totals.slice().sort((a, b) => b.sleepDays - a.sleepDays || a.total - b.total), "#sleep-days", "sleepDays", (value, item) => `${value} (${pct(value / Math.max(1, model.activeDays.length))})`);
-  renderRank(model.xp, "#xp-list", "xp", (value) => value.toFixed(2));
-  renderRank(model.totals.slice().sort((a, b) => b.pr - a.pr || b.total - a.total), "#pr-list", "pr", formatNumber);
-  renderRank(model.totals.slice().sort((a, b) => b.total - a.total), "#carry-list", "total", (value) => pct(value / Math.max(1, model.totalBeer)));
-  renderRank(model.totals.slice().sort((a, b) => b.bestStreak - a.bestStreak || b.drinkingDays - a.drinkingDays), "#streak-list", "bestStreak", (value, item) => `${value} / nå ${item.streak}`);
-
-  $("#duo-table").innerHTML = model.duos.map((duo) => `
-    <tr>
-      <td><strong>${duo.broder1}</strong></td>
-      <td>${duo.broder2}</td>
-      <td><span class="duo-score">${duo.days}</span></td>
-    </tr>
-  `).join("");
+  renderXpList(model);
+  renderStreakList(model);
+  renderDuoList(model);
 
   const dayTotals = model.activeDays.map((day) => ({ date: day.date, total: sum(day.values), drinkers: day.values.filter((value) => value > 0).length }));
   const bestDay = dayTotals.slice().sort((a, b) => b.total - a.total)[0];
@@ -794,6 +783,58 @@ function renderTotw(model) {
       if (panel) panel.hidden = false;
     });
   });
+}
+
+function renderXpList(model) {
+  $("#xp-list").innerHTML = model.xp.slice(0, 8).map((item, index) => `
+    <article class="xp-card">
+      <span class="rank-badge">${index + 1}</span>
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>${index === 0 ? "Høyest forventning" : `${formatNumber(model.xp[0].xp - item.xp)} bak xP-lederen`}</small>
+      </div>
+      <b>${item.xp.toFixed(2)}</b>
+    </article>
+  `).join("");
+}
+
+function renderStreakList(model) {
+  const streaks = model.totals
+    .slice()
+    .sort((a, b) => b.bestStreak - a.bestStreak || b.drinkingDays - a.drinkingDays || b.total - a.total)
+    .slice(0, 6);
+
+  $("#streak-list").innerHTML = streaks.map((player, index) => `
+    <article class="streak-card">
+      <span class="rank-badge">${index + 1}</span>
+      ${playerAvatar(player.name, "streak-avatar")}
+      <div>
+        <strong>${escapeHtml(player.name)}</strong>
+        <small>Nåværende streak: ${formatNumber(player.streak)} dager</small>
+      </div>
+      <b>${formatNumber(player.bestStreak)} dager</b>
+    </article>
+  `).join("");
+}
+
+function renderDuoList(model) {
+  $("#duo-table").innerHTML = model.duos.map((duo, index) => `
+    <article class="duo-card">
+      <span class="rank-badge">${index + 1}</span>
+      <div class="duo-avatars">
+        ${playerAvatar(duo.broder1, "duo-avatar")}
+        ${playerAvatar(duo.broder2, "duo-avatar")}
+      </div>
+      <div class="duo-names">
+        <strong>${escapeHtml(duo.broder1)}</strong>
+        <span>${escapeHtml(duo.broder2)}</span>
+      </div>
+      <div class="duo-metric">
+        <b>${formatNumber(duo.days)}</b>
+        <span>felles drikkedager</span>
+      </div>
+    </article>
+  `).join("");
 }
 
 function renderPlayers(model) {

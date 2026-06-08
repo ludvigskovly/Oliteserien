@@ -871,6 +871,127 @@ tbody tr:last-child td {
   text-overflow: ellipsis;
 }
 
+.stats-showcase {
+  align-items: start;
+}
+
+.xp-panel {
+  border-color: rgba(185, 55, 76, 0.28);
+  background: linear-gradient(145deg, #fff7f7, #fff0f1);
+}
+
+.xp-panel .panel-head {
+  background: linear-gradient(90deg, #3a0710, #8d1f31);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.xp-list {
+  display: grid;
+  gap: 0;
+}
+
+.xp-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(185, 55, 76, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.xp-card:last-child {
+  border-bottom: 0;
+}
+
+.xp-card .rank-badge {
+  background: #8d1f31;
+  color: white;
+}
+
+.xp-card strong,
+.streak-card strong,
+.duo-card strong {
+  display: block;
+  line-height: 1.1;
+}
+
+.xp-card small,
+.streak-card small,
+.duo-names span,
+.duo-metric span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.xp-card b {
+  color: #8d1f31;
+  font-size: 22px;
+}
+
+.streak-list,
+.duo-list {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.streak-card {
+  display: grid;
+  grid-template-columns: 38px 44px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(219, 230, 216, 0.9);
+  border-radius: 8px;
+  background: linear-gradient(145deg, #ffffff, #f3f8f1);
+}
+
+.streak-avatar,
+.duo-avatar {
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(242, 189, 85, 0.74);
+}
+
+.streak-card b {
+  color: var(--green);
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.duo-card {
+  display: grid;
+  grid-template-columns: 38px 74px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(219, 230, 216, 0.92);
+  border-radius: 8px;
+  background: linear-gradient(145deg, #ffffff, #f4f8f2);
+}
+
+.duo-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.duo-avatar + .duo-avatar {
+  margin-left: -14px;
+}
+
+.duo-metric {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+}
+
+.duo-metric b {
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+}
+
 .week-list {
   display: grid;
   gap: 8px;
@@ -1299,6 +1420,8 @@ button {
 .metric-player-photo,
 .hero-totw-photo,
 .totw-feature-photo,
+.streak-avatar,
+.duo-avatar,
 .table-avatar,
 .totw-avatar {
   display: inline-grid;
@@ -1794,5 +1917,14 @@ button {
   .totw-medal {
     top: 8px;
     left: 8px;
+  }
+
+  .duo-card {
+    grid-template-columns: 34px 68px minmax(0, 1fr);
+  }
+
+  .duo-metric {
+    grid-column: 3;
+    justify-items: start;
   }
 }
