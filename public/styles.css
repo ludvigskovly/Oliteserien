@@ -873,28 +873,140 @@ tbody tr:last-child td {
 
 .week-list {
   display: grid;
-  gap: 0;
-  max-height: 620px;
-  overflow: auto;
+  gap: 8px;
+  padding: 12px;
 }
 
 .week {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(90deg, rgba(92, 200, 255, 0.04), transparent);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(145deg, #ffffff, #f6faf4);
+  overflow: hidden;
 }
 
-.week:last-child {
-  border-bottom: 0;
-}
-
-.week-head {
+.week-toggle {
+  width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.week-toggle:hover {
+  transform: none;
+  background: rgba(18, 98, 71, 0.05);
+}
+
+.week-toggle > span:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.week-toggle strong {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.week-toggle small,
+.week-toggle > span:last-child {
   color: var(--muted);
-  font-size: 13px;
   font-weight: 800;
-  margin-bottom: 10px;
+}
+
+.week.is-open {
+  border-color: rgba(72, 205, 151, 0.48);
+  box-shadow: 0 12px 30px rgba(13, 24, 18, 0.08);
+}
+
+.week.is-open .week-toggle {
+  background: linear-gradient(90deg, rgba(72, 205, 151, 0.16), rgba(242, 189, 85, 0.08));
+  border-bottom: 1px solid rgba(219, 230, 216, 0.9);
+}
+
+.week-panel {
+  padding: 14px 16px 16px;
+}
+
+.totw-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.totw-feature-card {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  min-height: 240px;
+  padding: 14px;
+  border: 1px solid rgba(219, 230, 216, 0.95);
+  border-radius: 8px;
+  background: linear-gradient(160deg, #ffffff, #eff6ed);
+}
+
+.totw-feature-card.rank-1 {
+  background: linear-gradient(160deg, rgba(242, 189, 85, 0.24), #fffdf5);
+  border-color: rgba(242, 189, 85, 0.58);
+}
+
+.totw-medal {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-grid;
+  place-items: center;
+  min-width: 40px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: rgba(13, 24, 18, 0.9);
+  color: white;
+  font-weight: 900;
+  z-index: 1;
+}
+
+.totw-feature-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  border: 2px solid rgba(242, 189, 85, 0.66);
+  box-shadow: 0 12px 24px rgba(13, 24, 18, 0.14);
+}
+
+.totw-feature-card div {
+  display: grid;
+  gap: 2px;
+}
+
+.totw-feature-card strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.totw-feature-card span {
+  font-weight: 900;
+}
+
+.totw-feature-card small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.totw-empty {
+  display: grid;
+  gap: 4px;
+  padding: 28px 16px;
+  border: 1px dashed rgba(98, 115, 105, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .totw-row {
@@ -1133,6 +1245,7 @@ button {
 .avatar,
 .metric-player-photo,
 .hero-totw-photo,
+.totw-feature-photo,
 .table-avatar,
 .totw-avatar {
   display: inline-grid;
@@ -1233,6 +1346,16 @@ button {
   color: rgba(255, 255, 255, 0.72);
   font-weight: 900;
   white-space: nowrap;
+}
+
+.totw-feature-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center 24%;
 }
 
 .metric-player strong {
@@ -1427,15 +1550,13 @@ button {
 
 .week-list {
   max-height: none;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 8px;
   padding: 14px;
 }
 
 .week {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: linear-gradient(145deg, #ffffff, #f6faf4);
+  border-bottom: 1px solid var(--line);
 }
 
 .totw-row {
@@ -1593,5 +1714,32 @@ button {
 
   .totw-row span:last-child {
     grid-column: 3;
+  }
+
+  .week-toggle {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .totw-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .totw-feature-card {
+    grid-template-columns: 86px minmax(0, 1fr);
+    min-height: 0;
+    align-items: center;
+  }
+
+  .totw-feature-photo {
+    width: 86px;
+    height: 86px;
+    aspect-ratio: auto;
+  }
+
+  .totw-medal {
+    top: 8px;
+    left: 8px;
   }
 }

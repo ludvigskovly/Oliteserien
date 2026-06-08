@@ -694,23 +694,7 @@ function render(model) {
   renderPlayers(model);
   renderCumulativeChart(model);
   renderSheetStats(model);
-
-  $("#totw-list").innerHTML = model.weeks.map((week) => `
-    <div class="week">
-      <div class="week-head">
-        <span>Gameweek ${model.weeks.indexOf(week) + 1} · ${SHORT_DATE.format(week.start)} - ${SHORT_DATE.format(week.end)}</span>
-        <span>${formatNumber(week.total)} pils totalt</span>
-      </div>
-      ${week.entries.length ? week.entries.map((entry, index) => `
-        <div class="totw-row">
-          <span class="position">${index + 1}</span>
-          ${playerAvatar(entry.name, "totw-avatar")}
-          <b>${entry.name}</b>
-          <span>${formatNumber(entry.total)} pils · PR ${formatNumber(entry.pr)}</span>
-        </div>
-      `).join("") : `<div class="totw-row"><span class="position">-</span><b>Ikke spilt</b><span>0</span></div>`}
-    </div>
-  `).join("");
+  renderTotw(model);
 
   renderRank(model.totals.slice().sort((a, b) => b.drinkingDays - a.drinkingDays || b.total - a.total), "#drinking-days", "drinkingDays", (value, item) => `${value} (${pct(value / Math.max(1, model.activeDays.length))})`);
   renderRank(model.totals.slice().sort((a, b) => b.sleepDays - a.sleepDays || a.total - b.total), "#sleep-days", "sleepDays", (value, item) => `${value} (${pct(value / Math.max(1, model.activeDays.length))})`);
@@ -741,6 +725,74 @@ function render(model) {
     ["Mest aktive dag", bestDay ? `${DATE_FORMAT.format(dayTotals.slice().sort((a, b) => b.drinkers - a.drinkers || b.total - a.total)[0].date)} (${dayTotals.slice().sort((a, b) => b.drinkers - a.drinkers || b.total - a.total)[0].drinkers})` : "-"],
     ["Snitt per aktiv dag", formatNumber(model.totalBeer / Math.max(1, dayTotals.filter((day) => day.total > 0).length))],
   ].map(([label, value]) => `<div class="stat-line"><span>${label}</span><strong>${value}</strong></div>`).join("");
+}
+
+function renderTotw(model) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const calendarWeekIndex = model.weeks.findIndex((week) => today >= week.start && today <= week.end);
+  const latestPlayedWeekIndex = model.weeks.findLastIndex((week) => week.total > 0);
+  const openIndex = calendarWeekIndex >= 0 ? calendarWeekIndex : Math.max(0, latestPlayedWeekIndex);
+
+  $("#totw-list").innerHTML = model.weeks.map((week, index) => {
+    const isOpen = index === openIndex;
+    const buttonId = `totw-button-${index}`;
+    const panelId = `totw-panel-${index}`;
+    const title = `Serierunde ${index + 1}`;
+    const period = `${SHORT_DATE.format(week.start)} - ${SHORT_DATE.format(week.end)}`;
+
+    return `
+      <article class="week ${isOpen ? "is-open" : ""}">
+        <button class="week-toggle" id="${buttonId}" type="button" aria-expanded="${isOpen}" aria-controls="${panelId}">
+          <span>
+            <strong>${title}</strong>
+            <small>${period}</small>
+          </span>
+          <span>${formatNumber(week.total)} pils totalt</span>
+        </button>
+        <div class="week-panel" id="${panelId}" role="region" aria-labelledby="${buttonId}" ${isOpen ? "" : "hidden"}>
+          ${week.entries.length ? `
+            <div class="totw-feature-grid">
+              ${week.entries.slice(0, 3).map((entry, entryIndex) => `
+                <article class="totw-feature-card rank-${entryIndex + 1}">
+                  <span class="totw-medal">#${entryIndex + 1}</span>
+                  ${playerAvatar(entry.name, "totw-feature-photo")}
+                  <div>
+                    <strong>${escapeHtml(entry.name)}</strong>
+                    <span>${formatNumber(entry.total)} pils</span>
+                    <small>PR ${formatNumber(entry.pr)}</small>
+                  </div>
+                </article>
+              `).join("")}
+            </div>
+          ` : `
+            <div class="totw-empty">
+              <strong>Ikke spilt enda</strong>
+              <span>Serierunden åpner når første pils registreres.</span>
+            </div>
+          `}
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".week-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const week = button.closest(".week");
+      document.querySelectorAll(".week.is-open").forEach((openWeek) => {
+        if (openWeek === week) return;
+        openWeek.classList.remove("is-open");
+        openWeek.querySelector(".week-toggle")?.setAttribute("aria-expanded", "false");
+        const panel = openWeek.querySelector(".week-panel");
+        if (panel) panel.hidden = true;
+      });
+
+      week.classList.add("is-open");
+      button.setAttribute("aria-expanded", "true");
+      const panel = week.querySelector(".week-panel");
+      if (panel) panel.hidden = false;
+    });
+  });
 }
 
 function renderPlayers(model) {
