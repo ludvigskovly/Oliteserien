@@ -880,8 +880,23 @@ tbody tr:last-child td {
 .week {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: linear-gradient(145deg, #ffffff, #f6faf4);
+  background: #e7f3e7;
   overflow: hidden;
+}
+
+.week.is-past {
+  background: linear-gradient(145deg, #e5f4e5, #f4fbf1);
+  border-color: rgba(73, 130, 82, 0.34);
+}
+
+.week.is-current {
+  background: linear-gradient(145deg, #0d2b1d, #17432f);
+  border-color: rgba(72, 205, 151, 0.62);
+}
+
+.week.is-future {
+  background: linear-gradient(145deg, #6d7370, #4f5552);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .week-toggle {
@@ -905,6 +920,19 @@ tbody tr:last-child td {
   background: rgba(18, 98, 71, 0.05);
 }
 
+.week.is-current .week-toggle,
+.week.is-future .week-toggle {
+  color: white;
+}
+
+.week.is-current .week-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.week.is-future .week-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .week-toggle > span:first-child {
   display: grid;
   gap: 2px;
@@ -921,18 +949,35 @@ tbody tr:last-child td {
   font-weight: 800;
 }
 
+.week.is-current .week-toggle small,
+.week.is-current .week-toggle > span:last-child,
+.week.is-future .week-toggle small,
+.week.is-future .week-toggle > span:last-child {
+  color: rgba(255, 255, 255, 0.76);
+}
+
 .week.is-open {
   border-color: rgba(72, 205, 151, 0.48);
   box-shadow: 0 12px 30px rgba(13, 24, 18, 0.08);
 }
 
 .week.is-open .week-toggle {
-  background: linear-gradient(90deg, rgba(72, 205, 151, 0.16), rgba(242, 189, 85, 0.08));
+  background: rgba(255, 255, 255, 0.14);
   border-bottom: 1px solid rgba(219, 230, 216, 0.9);
+}
+
+.week.is-past.is-open .week-toggle {
+  background: linear-gradient(90deg, rgba(72, 205, 151, 0.22), rgba(255, 255, 255, 0.4));
 }
 
 .week-panel {
   padding: 14px 16px 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.week.is-current .week-panel,
+.week.is-future .week-panel {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .totw-feature-grid {
@@ -947,14 +992,16 @@ tbody tr:last-child td {
   gap: 10px;
   min-height: 240px;
   padding: 14px;
-  border: 1px solid rgba(219, 230, 216, 0.95);
+  border: 1px solid rgba(242, 189, 85, 0.46);
   border-radius: 8px;
-  background: linear-gradient(160deg, #ffffff, #eff6ed);
+  background: linear-gradient(160deg, #07100c, #102a1d);
+  color: var(--gold);
+  box-shadow: 0 18px 38px rgba(7, 16, 12, 0.22);
 }
 
 .totw-feature-card.rank-1 {
-  background: linear-gradient(160deg, rgba(242, 189, 85, 0.24), #fffdf5);
-  border-color: rgba(242, 189, 85, 0.58);
+  background: linear-gradient(160deg, #07100c, #173a29);
+  border-color: rgba(242, 189, 85, 0.8);
 }
 
 .totw-medal {
@@ -967,8 +1014,8 @@ tbody tr:last-child td {
   height: 34px;
   padding: 0 10px;
   border-radius: 8px;
-  background: rgba(13, 24, 18, 0.9);
-  color: white;
+  background: rgba(242, 189, 85, 0.96);
+  color: #07100c;
   font-weight: 900;
   z-index: 1;
 }
@@ -977,7 +1024,7 @@ tbody tr:last-child td {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 8px;
-  border: 2px solid rgba(242, 189, 85, 0.66);
+  border: 2px solid rgba(242, 189, 85, 0.82);
   box-shadow: 0 12px 24px rgba(13, 24, 18, 0.14);
 }
 
@@ -987,16 +1034,22 @@ tbody tr:last-child td {
 }
 
 .totw-feature-card strong {
+  color: var(--gold);
   font-size: 22px;
   line-height: 1;
 }
 
 .totw-feature-card span {
+  color: white;
   font-weight: 900;
 }
 
+.totw-feature-card .totw-medal {
+  color: #07100c;
+}
+
 .totw-feature-card small {
-  color: var(--muted);
+  color: rgba(242, 189, 85, 0.82);
   font-weight: 800;
 }
 

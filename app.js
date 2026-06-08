@@ -736,13 +736,14 @@ function renderTotw(model) {
 
   $("#totw-list").innerHTML = model.weeks.map((week, index) => {
     const isOpen = index === openIndex;
+    const roundStatus = today < week.start ? "is-future" : today > week.end ? "is-past" : "is-current";
     const buttonId = `totw-button-${index}`;
     const panelId = `totw-panel-${index}`;
     const title = `Serierunde ${index + 1}`;
     const period = `${SHORT_DATE.format(week.start)} - ${SHORT_DATE.format(week.end)}`;
 
     return `
-      <article class="week ${isOpen ? "is-open" : ""}">
+      <article class="week ${roundStatus} ${isOpen ? "is-open" : ""}">
         <button class="week-toggle" id="${buttonId}" type="button" aria-expanded="${isOpen}" aria-controls="${panelId}">
           <span>
             <strong>${title}</strong>
@@ -760,7 +761,7 @@ function renderTotw(model) {
                   <div>
                     <strong>${escapeHtml(entry.name)}</strong>
                     <span>${formatNumber(entry.total)} pils</span>
-                    <small>PR ${formatNumber(entry.pr)}</small>
+                    <small>Sterkeste enkeltdag ${formatNumber(entry.pr)} pils</small>
                   </div>
                 </article>
               `).join("")}
