@@ -760,8 +760,8 @@ function renderTotw(model) {
                   ${playerAvatar(entry.name, "totw-feature-photo")}
                   <div>
                     <strong>${escapeHtml(entry.name)}</strong>
-                    <span>${formatNumber(entry.total)} pils</span>
-                    <small>Sterkeste enkeltdag ${formatNumber(entry.pr)} pils</small>
+                    <span>Ukestotal: ${formatNumber(entry.total)} pils</span>
+                    <small>Sterkeste enkeltdag: ${formatNumber(entry.pr)} pils</small>
                   </div>
                 </article>
               `).join("")}
