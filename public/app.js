@@ -821,7 +821,7 @@ function renderStreakList(model) {
 
 function renderDuoList(model) {
   $("#duo-table").innerHTML = model.duos.map((duo, index) => `
-    <article class="duo-card">
+    <article class="duo-card ${index === 0 ? "is-top-duo" : ""}">
       <span class="rank-badge">${index + 1}</span>
       <div class="duo-avatars">
         ${playerAvatar(duo.broder1, "duo-avatar")}
@@ -832,8 +832,14 @@ function renderDuoList(model) {
         <span>${escapeHtml(duo.broder2)}</span>
       </div>
       <div class="duo-metric">
-        <b>${formatNumber(duo.days)}</b>
-        <span>felles drikkedager</span>
+        <div>
+          <b>${formatNumber(duo.days)}</b>
+          <span>felles drikkedager</span>
+        </div>
+        <div>
+          <b>${formatNumber(duo.total)}</b>
+          <span>felles pils</span>
+        </div>
       </div>
     </article>
   `).join("");
