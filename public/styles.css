@@ -890,12 +890,19 @@ tbody tr:last-child td {
   gap: 0;
 }
 
+.xp-context {
+  margin: -8px 16px 8px;
+  color: #8d1f31;
+  font-size: 15px;
+  font-weight: 900;
+}
+
 .xp-card {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
-  gap: 12px;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
   align-items: center;
-  padding: 10px 14px;
+  padding: 7px 14px;
   border-bottom: 1px solid rgba(185, 55, 76, 0.16);
   background: rgba(255, 255, 255, 0.62);
 }
@@ -907,6 +914,9 @@ tbody tr:last-child td {
 .xp-card .rank-badge {
   background: #8d1f31;
   color: white;
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
 }
 
 .xp-card strong,
@@ -916,7 +926,10 @@ tbody tr:last-child td {
   line-height: 1.1;
 }
 
-.xp-card small,
+.xp-card strong {
+  font-size: 18px;
+}
+
 .streak-card small,
 .duo-names span,
 .duo-metric span {
@@ -926,7 +939,7 @@ tbody tr:last-child td {
 
 .xp-card b {
   color: #8d1f31;
-  font-size: 22px;
+  font-size: 19px;
 }
 
 .streak-list,

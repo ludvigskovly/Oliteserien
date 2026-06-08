@@ -1,5 +1,6 @@
 const DATE_FORMAT = new Intl.DateTimeFormat("no-NO", { day: "2-digit", month: "2-digit", year: "numeric" });
 const SHORT_DATE = new Intl.DateTimeFormat("no-NO", { day: "2-digit", month: "2-digit" });
+const WEEKDAY_FORMAT = new Intl.DateTimeFormat("no-NO", { weekday: "long" });
 
 const state = {
   rows: [],
@@ -786,12 +787,13 @@ function renderTotw(model) {
 }
 
 function renderXpList(model) {
-  $("#xp-list").innerHTML = model.xp.slice(0, 8).map((item, index) => `
+  const xpDate = model.latest?.date || new Date();
+  $("#xp-context").textContent = `Nå vises xP for ${WEEKDAY_FORMAT.format(xpDate)}, ${DATE_FORMAT.format(xpDate)}.`;
+  $("#xp-list").innerHTML = model.xp.map((item, index) => `
     <article class="xp-card">
       <span class="rank-badge">${index + 1}</span>
       <div>
         <strong>${escapeHtml(item.name)}</strong>
-        <small>${index === 0 ? "Høyest forventning" : `${formatNumber(model.xp[0].xp - item.xp)} bak xP-lederen`}</small>
       </div>
       <b>${item.xp.toFixed(2)}</b>
     </article>
