@@ -225,6 +225,12 @@ function sameOrBeforeToday(date) {
   return date <= today;
 }
 
+function sameCalendarDay(first, second) {
+  return first.getFullYear() === second.getFullYear()
+    && first.getMonth() === second.getMonth()
+    && first.getDate() === second.getDate();
+}
+
 function sum(values) {
   return values.reduce((total, value) => total + value, 0);
 }
@@ -459,10 +465,15 @@ function applyTotwCounts(players, totwCounts) {
 
 function currentStreak(days, index) {
   let count = 0;
+  const today = new Date();
+
   for (let i = days.length - 1; i >= 0; i -= 1) {
-    if ((days[i].values[index] || 0) <= 0) break;
+    const value = days[i].values[index] || 0;
+    if (value <= 0 && sameCalendarDay(days[i].date, today)) continue;
+    if (value <= 0) break;
     count += 1;
   }
+
   return count;
 }
 
