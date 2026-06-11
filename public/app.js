@@ -802,8 +802,11 @@ function renderTotw(model) {
   const calendarWeekIndex = model.weeks.findIndex((week) => today >= week.start && today <= week.end);
   const latestPlayedWeekIndex = model.weeks.findLastIndex((week) => week.total > 0);
   const openIndex = calendarWeekIndex >= 0 ? calendarWeekIndex : Math.max(0, latestPlayedWeekIndex);
+  const visibleWeeks = model.weeks
+    .map((week, index) => ({ week, index }))
+    .filter(({ week, index }) => index === openIndex || today > week.end);
 
-  $("#totw-list").innerHTML = model.weeks.map((week, index) => {
+  $("#totw-list").innerHTML = visibleWeeks.map(({ week, index }) => {
     const isOpen = index === openIndex;
     const roundStatus = today < week.start ? "is-future" : today > week.end ? "is-past" : "is-current";
     const buttonId = `totw-button-${index}`;
@@ -1052,6 +1055,10 @@ function maxColumnsForTable(item) {
   return maxByColumn;
 }
 
+function displaySheetValue(value) {
+  return PLAYER_META[value] ? displayPlayerName(value) : value;
+}
+
 function renderSheetItem(item) {
   if (item.type === "value") {
     return `
@@ -1093,8 +1100,7 @@ function renderSheetItem(item) {
                   && numeric !== null
                   && maxByColumn[columnIndex] === numeric
                   && !isFormColumn(item.headers[columnIndex]);
-                const displayValue = PLAYER_META[value] ? displayPlayerName(value) : value;
-                return `<td class="${isTopValue ? "stat-top-value" : ""}">${escapeHtml(displayValue)}</td>`;
+                return `<td class="${isTopValue ? "stat-top-value" : ""}">${escapeHtml(displaySheetValue(value))}</td>`;
               }).join("")}</tr>
             `).join("")}
           </tbody>
@@ -1123,14 +1129,16 @@ function renderMachineRating(model) {
   }
 
   const maxByColumn = maxColumnsForTable(table);
+  const orderedColumnIndexes = [1, 2, 3, 5, 6, 4]
+    .filter((columnIndex) => table.headers[columnIndex] || table.rows.some((row) => row[columnIndex]));
   const rows = table.rows.map((row) => `
     <article class="machine-row">
       <div class="machine-player">
         ${playerAvatar(row[0], "machine-avatar")}
         <strong>${escapeHtml(displayPlayerName(row[0]))}</strong>
       </div>
-      ${row.slice(1).map((value, index) => {
-        const columnIndex = index + 1;
+      ${orderedColumnIndexes.map((columnIndex) => {
+        const value = row[columnIndex] || "";
         const numeric = numericCellValue(value);
         const isTopValue = numeric !== null && maxByColumn[columnIndex] === numeric && !isFormColumn(table.headers[columnIndex]);
         return `
@@ -1220,11 +1228,14 @@ function renderOdds(model) {
           ${playerAvatar(entry.name, "odds-avatar")}
           <div class="odds-player">
             <strong>${escapeHtml(displayPlayerName(entry.name))}</strong>
-            ${entry.extra ? `<small>${escapeHtml(entry.extra)}</small>` : ""}
           </div>
           <div class="odds-price">
             <span>Odds</span>
             <b>${escapeHtml(entry.odds || "-")}</b>
+          </div>
+          <div class="odds-projection">
+            <span>Estimert sluttpils</span>
+            <b>${escapeHtml(entry.extra || "-")}</b>
           </div>
         </article>
       `).join("")}
@@ -1242,18 +1253,188 @@ function renderBottomSheetStats(model) {
   if (!target) return;
   const sections = model.sheetSections.filter(isBottomSheetSection);
 
-  target.innerHTML = sections.map((section) => `
-    <section class="sheet-section">
-      <div class="sheet-section-head">
-        <h3>${escapeHtml(section.title)}</h3>
-        ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
-        ${(section.notes || []).map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+  target.innerHTML = sections.map((section) => {
+    const title = normalizedName(section.title);
+    if (title.includes("preseason") || title.includes("power ranking")) return renderPreseasonSection(section);
+    if (title.includes("league stats")) return renderLeagueStatsSection(section);
+
+    return `
+      <section class="sheet-section">
+        <div class="sheet-section-head">
+          <h3>${escapeHtml(section.title)}</h3>
+          ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
+          ${(section.notes || []).map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+        </div>
+        <div class="sheet-card-grid">
+          ${section.items.map(renderSheetItem).join("")}
+        </div>
+      </section>
+    `;
+  }).join("");
+}
+
+function tableRankClass(place, isDarkHorse = false) {
+  if (isDarkHorse) return "rank-dark-horse";
+  if (place === 1) return "rank-gold";
+  if (place === 2) return "rank-silver";
+  if (place === 3) return "rank-bronze";
+  if (place === 17) return "rank-playoff";
+  if (place >= 18) return "rank-relegation";
+  return "";
+}
+
+function tablePositionClass(value) {
+  const numeric = parseNumber(value);
+  if (numeric <= -8) return "pos-very-good";
+  if (numeric < 0) return "pos-good";
+  if (numeric === 0) return "pos-neutral";
+  if (numeric >= 8) return "pos-very-bad";
+  return "pos-bad";
+}
+
+function renderRankingRow(row, index, options = {}) {
+  const place = parseNumber(row[0]) || index + 1;
+  const name = row[1] || row[0];
+  const values = row.slice(2).filter(Boolean);
+  const darkHorse = options.darkHorseName && normalizedName(name) === normalizedName(options.darkHorseName);
+  return `
+    <tr class="${tableRankClass(place, darkHorse)}">
+      <td>${formatNumber(place)}.</td>
+      <td>${playerAvatar(name, "ranking-avatar")}${escapeHtml(displaySheetValue(name))}</td>
+      ${values.map((value, valueIndex) => `
+        <td class="${options.bigBoard && valueIndex === values.length - 1 ? tablePositionClass(value) : ""}">${escapeHtml(value)}</td>
+      `).join("")}
+    </tr>
+  `;
+}
+
+function renderPreseasonSection(section) {
+  const bigBoard = section.items[0];
+  const expertTables = section.items.slice(1).filter((item) => item.type === "table" && item.rows.length);
+  const darkHorseNames = extractDarkHorseNames(section, expertTables);
+
+  return `
+    <section class="sheet-section preseason-section">
+      <div class="sheet-section-head preseason-head">
+        <h3>Preseason Power Rankings - Ekspertenes Tabelltips</h3>
+        ${section.notes.slice(0, 2).map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+        <div class="ranking-legend">
+          <span class="legend-gold">Vinner</span>
+          <span class="legend-silver">Andreplass</span>
+          <span class="legend-bronze">Tredjeplass</span>
+          <span class="legend-playoff">Nedrykksplayoff</span>
+          <span class="legend-relegation">Nedrykk</span>
+          <span class="legend-darkhorse">Dark Horse</span>
+        </div>
       </div>
-      <div class="sheet-card-grid">
-        ${section.items.map(renderSheetItem).join("")}
+      ${bigBoard ? `
+        <article class="big-board-card">
+          <div class="big-board-head">
+            <h4>The Big Board</h4>
+            <span>Hovedranking</span>
+          </div>
+          <table class="ranking-table big-board-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Pilser</th>
+                <th>Big Board Average</th>
+                <th>Tabellposisjon</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${bigBoard.rows.map((row, index) => renderRankingRow(row, index, { bigBoard: true })).join("")}
+            </tbody>
+          </table>
+        </article>
+      ` : ""}
+      <article class="expert-board-card">
+        <div class="big-board-head">
+          <h4>Ekspertenes tabelltips</h4>
+          <span>Fire uavhengige tips</span>
+        </div>
+        <div class="expert-grid">
+          ${expertTables.map((table, tableIndex) => `
+            <div class="expert-table expert-tone-${tableIndex + 1}">
+              <h5>${escapeHtml(table.title)}</h5>
+              <table class="ranking-table">
+                <tbody>
+                  ${table.rows.map((row, index) => renderRankingRow(row, index, { darkHorseName: darkHorseNames[table.title] })).join("")}
+                </tbody>
+              </table>
+            </div>
+          `).join("")}
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function extractDarkHorseNames(section, expertTables) {
+  const names = {};
+  const notes = (section.notes || []).join(" ");
+  expertTables.forEach((table) => {
+    const escapedTitle = table.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = notes.match(new RegExp(`${escapedTitle}[^A-ZÆØÅa-zæøå]+([A-ZÆØÅ][A-ZÆØÅa-zæøå]+)\\s+Dark Horse`, "i"));
+    if (match) names[table.title] = match[1];
+  });
+  return names;
+}
+
+function renderStatPairCard(title, table) {
+  if (!table?.rows?.length) return "";
+  return `
+    <article class="league-stat-card">
+      <h4>${escapeHtml(title)}</h4>
+      ${table.rows.slice(0, 1).map((row) => `
+        <div class="league-stat-value">
+          ${row.map((value) => `<span>${escapeHtml(displaySheetValue(value))}</span>`).join("")}
+        </div>
+      `).join("")}
+    </article>
+  `;
+}
+
+function renderLeagueStatsTableCard(table) {
+  if (!table || normalizedName(table.title).includes("dynamic duo")) return "";
+  return renderSheetItem(table);
+}
+
+function renderLeagueStatsSection(section) {
+  const items = section.items || [];
+  const weekTotals = items.find((item) => normalizedName(item.title).includes("ligatotal"));
+  const leagueCarry = items.find((item) => normalizedName(item.title).includes("league carry"));
+  const socialInfluence = items.find((item) => normalizedName(item.title).includes("social influence"));
+  const activity = items.find((item) => normalizedName(item.title).includes("aktivitet basert"));
+  const bestWeek = items.find((item) => normalizedName(item.title).includes("beste uke"));
+  const worstWeek = items.find((item) => normalizedName(item.title).includes("verste uke"));
+  const bestDay = items.find((item) => normalizedName(item.title).includes("beste dag"));
+  const worstDay = items.find((item) => normalizedName(item.title).includes("verste dag"));
+  const mostActive = items.find((item) => normalizedName(item.title).includes("mest aktive dag"));
+  const leastActive = items.find((item) => normalizedName(item.title).includes("minst aktive dag"));
+  const activityPercent = items.find((item) => item.type === "value");
+
+  return `
+    <section class="sheet-section league-stats-section">
+      <div class="league-kpi-grid">
+        ${renderLeagueStatsTableCard(weekTotals)}
+        ${activityPercent ? renderSheetItem(activityPercent) : ""}
+      </div>
+      <div class="league-pair-grid">
+        ${renderStatPairCard("Beste uke", bestWeek)}
+        ${renderStatPairCard("Verste uke", worstWeek)}
+        ${renderStatPairCard("Beste dag", bestDay)}
+        ${renderStatPairCard("Verste dag", worstDay)}
+        ${renderStatPairCard("Mest aktive dag", mostActive)}
+        ${renderStatPairCard("Minst aktive dag", leastActive)}
+      </div>
+      <div class="league-wide-grid">
+        ${activity ? renderSheetItem(activity) : ""}
+        ${leagueCarry ? renderSheetItem(leagueCarry) : ""}
+        ${socialInfluence ? renderSheetItem(socialInfluence) : ""}
       </div>
     </section>
-  `).join("");
+  `;
 }
 
 function renderCumulativeChart(model) {

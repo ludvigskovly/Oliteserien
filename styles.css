@@ -2458,3 +2458,404 @@ button {
     text-align: left;
   }
 }
+
+/* Focused refinements */
+.machine-row {
+  grid-template-columns: minmax(130px, 1.05fr) repeat(3, minmax(62px, 0.7fr));
+  grid-template-rows: repeat(2, minmax(54px, auto));
+  gap: 8px 10px;
+  padding: 13px 14px;
+}
+
+.machine-player {
+  grid-row: 1 / 3;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.machine-avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+.machine-player strong {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.machine-cell {
+  align-content: center;
+}
+
+.machine-cell b {
+  font-size: 17px;
+}
+
+.machine-explainer {
+  align-self: start;
+}
+
+.machine-explainer p {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.odds-board {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-template-rows: repeat(10, minmax(86px, auto));
+  align-items: start;
+}
+
+.odds-ticket {
+  grid-template-columns: 36px 46px minmax(80px, 1fr) minmax(86px, 0.58fr) minmax(120px, 0.78fr);
+  min-height: 86px;
+}
+
+.odds-price {
+  justify-self: center;
+  min-width: 86px;
+}
+
+.odds-projection {
+  justify-self: end;
+  text-align: right;
+}
+
+.odds-projection span,
+.odds-projection b {
+  display: block;
+}
+
+.odds-projection span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.odds-projection b {
+  color: white;
+  font-size: 22px;
+}
+
+.preseason-section,
+.league-stats-section {
+  padding: 18px;
+}
+
+.preseason-head {
+  margin: -18px -18px 18px;
+  border-radius: 8px 8px 0 0;
+}
+
+.ranking-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.ranking-legend span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #172018;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.legend-gold,
+.rank-gold td {
+  background: linear-gradient(90deg, #f4ca64, #fff0b0);
+}
+
+.legend-silver,
+.rank-silver td {
+  background: linear-gradient(90deg, #cfd6dc, #f7fafc);
+}
+
+.legend-bronze,
+.rank-bronze td {
+  background: linear-gradient(90deg, #c99057, #f1c49a);
+}
+
+.legend-playoff,
+.rank-playoff td {
+  background: linear-gradient(90deg, #f1b4a5, #fff1ed);
+}
+
+.legend-relegation,
+.rank-relegation td {
+  background: linear-gradient(90deg, #d94c4c, #f38d8d);
+  color: white;
+}
+
+.legend-darkhorse,
+.rank-dark-horse td {
+  background: linear-gradient(90deg, #7c5cff, #d9d0ff);
+  color: white;
+}
+
+.big-board-card,
+.expert-board-card {
+  overflow: hidden;
+  border: 1px solid var(--sheet-grid);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.big-board-card {
+  margin-bottom: 18px;
+  border-color: rgba(242, 189, 85, 0.55);
+  box-shadow: 0 18px 42px rgba(80, 48, 4, 0.12);
+}
+
+.big-board-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: baseline;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--sheet-grid);
+}
+
+.big-board-head h4,
+.expert-table h5 {
+  margin: 0;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.big-board-head span {
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.ranking-table th,
+.ranking-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--sheet-grid);
+  font-weight: 850;
+}
+
+.ranking-table th {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.ranking-table td:first-child {
+  width: 44px;
+}
+
+.ranking-table td:nth-child(2) {
+  min-width: 0;
+}
+
+.big-board-table td,
+.big-board-table th {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.ranking-avatar {
+  width: 26px;
+  height: 26px;
+  margin-right: 9px;
+  border: 2px solid rgba(185, 139, 44, 0.75);
+}
+
+.pos-very-good {
+  background: #0d7d4d !important;
+  color: white;
+}
+
+.pos-good {
+  background: #91d7ad !important;
+}
+
+.pos-neutral {
+  background: #f4f1e8 !important;
+}
+
+.pos-bad {
+  background: #f2b49f !important;
+}
+
+.pos-very-bad {
+  background: #ce4742 !important;
+  color: white;
+}
+
+.expert-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 14px;
+}
+
+.expert-table {
+  overflow: hidden;
+  max-height: 520px;
+  overflow-y: auto;
+  border: 1px solid var(--sheet-grid);
+  border-radius: 8px;
+}
+
+.expert-table h5 {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sheet-grid);
+}
+
+.expert-tone-1 {
+  background: #fffaf0;
+}
+
+.expert-tone-2 {
+  background: #f4fbff;
+}
+
+.expert-tone-3 {
+  background: #f7f4ff;
+}
+
+.expert-tone-4 {
+  background: #f4fff7;
+}
+
+.league-stats-section {
+  display: grid;
+  gap: 18px;
+}
+
+.league-kpi-grid,
+.league-pair-grid,
+.league-wide-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.league-kpi-grid {
+  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
+}
+
+.league-pair-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.league-wide-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.league-stat-card {
+  padding: 16px;
+  border: 1px solid var(--sheet-grid);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #f1f8f0);
+}
+
+.league-stat-card h4 {
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.league-stat-value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.league-stat-value span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #e4efe1;
+  font-weight: 900;
+}
+
+.metric.performance-metric,
+.metric.week-total {
+  align-content: center;
+}
+
+.metric.performance-metric .metric-player-photo {
+  width: 70px;
+  height: 70px;
+}
+
+.metric.performance-metric .metric-player {
+  margin-top: 16px;
+}
+
+.metric.week-total strong {
+  font-size: clamp(52px, 6vw, 82px);
+}
+
+@media (max-width: 1100px) {
+  .odds-board {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+
+  .league-kpi-grid,
+  .league-pair-grid,
+  .league-wide-grid,
+  .expert-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .machine-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+  }
+
+  .machine-player {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .odds-ticket {
+    grid-template-columns: 34px 46px minmax(0, 1fr);
+  }
+
+  .odds-price,
+  .odds-projection {
+    grid-column: 3;
+    justify-self: stretch;
+    text-align: left;
+  }
+
+  .big-board-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ranking-table th,
+  .ranking-table td {
+    padding: 7px 6px;
+    font-size: 13px;
+  }
+
+  .ranking-avatar {
+    width: 22px;
+    height: 22px;
+    margin-right: 5px;
+  }
+}
